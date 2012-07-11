@@ -7,11 +7,10 @@ public class ADLogger
 {
 	private Logger logger;
 	private String prefix;
-	public static final String MINECRAFT_LOGGER = "Minecraft";
 
 	public ADLogger(String prefix)
 	{
-		this.logger = Logger.getLogger(MINECRAFT_LOGGER);
+		this.logger = Logger.getLogger("Minecraft");
 		this.prefix = prefix;
 	}
 
