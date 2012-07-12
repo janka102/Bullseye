@@ -19,13 +19,14 @@ import org.bukkit.util.BlockIterator;
 public class ArrowDetectorListener implements Listener {
 	private final ArrowDetect plugin;
 	private boolean isWall;
+	public String lines = "";
 
 	public ArrowDetectorListener(ArrowDetect r_plugin)
 	{
 		plugin = r_plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
-	
+
 	public boolean isValidLocation(Block block)
 	{
 		if(block == null)
@@ -34,20 +35,30 @@ public class ArrowDetectorListener implements Listener {
 		Block tempBlock = block.getRelative(BlockFace.DOWN);
 
 		if (tempBlock.getType() == Material.AIR
+				|| tempBlock.getType() == Material.STEP
+				|| tempBlock.getType() == Material.TNT
+				|| tempBlock.getType() == Material.COBBLESTONE_STAIRS
+				|| tempBlock.getType() == Material.WOOD_STAIRS
+				|| tempBlock.getType() == Material.BRICK_STAIRS
+				|| tempBlock.getType() == Material.SMOOTH_STAIRS
+				|| tempBlock.getType() == Material.THIN_GLASS
+				|| tempBlock.getType() == Material.IRON_FENCE
+				|| tempBlock.getType() == Material.CACTUS
+				|| tempBlock.getType() == Material.WEB
 				|| tempBlock.getType() == Material.PISTON_BASE
 				|| tempBlock.getType() == Material.PISTON_EXTENSION
 				|| tempBlock.getType() == Material.PISTON_MOVING_PIECE
 				|| tempBlock.getType() == Material.PISTON_STICKY_BASE
 				|| tempBlock.getType() == Material.GLOWSTONE
-				|| tempBlock.getType() == Material.REDSTONE_LAMP_ON
-				|| tempBlock.getType() == Material.REDSTONE_LAMP_OFF)
+				|| tempBlock.getType() == Material.WALL_SIGN
+				|| tempBlock.getType() == Material.SIGN_POST)
 		{
 			return false;
 		}
 		else
 			return true;
 	}
-	
+
 	public boolean isValidWallLocation(Block block)
 	{
 		BlockFace face = BlockFace.DOWN;
@@ -72,13 +83,23 @@ public class ArrowDetectorListener implements Listener {
 		Block tempBlock = block.getRelative(face);
 
 		if (tempBlock.getType() == Material.AIR
+				|| tempBlock.getType() == Material.STEP
+				|| tempBlock.getType() == Material.TNT
+				|| tempBlock.getType() == Material.COBBLESTONE_STAIRS
+				|| tempBlock.getType() == Material.WOOD_STAIRS
+				|| tempBlock.getType() == Material.BRICK_STAIRS
+				|| tempBlock.getType() == Material.SMOOTH_STAIRS
+				|| tempBlock.getType() == Material.THIN_GLASS
+				|| tempBlock.getType() == Material.IRON_FENCE
+				|| tempBlock.getType() == Material.CACTUS
+				|| tempBlock.getType() == Material.WEB
 				|| tempBlock.getType() == Material.PISTON_BASE
 				|| tempBlock.getType() == Material.PISTON_EXTENSION
 				|| tempBlock.getType() == Material.PISTON_MOVING_PIECE
 				|| tempBlock.getType() == Material.PISTON_STICKY_BASE
 				|| tempBlock.getType() == Material.GLOWSTONE
-				|| tempBlock.getType() == Material.REDSTONE_LAMP_ON
-				|| tempBlock.getType() == Material.REDSTONE_LAMP_OFF)
+				|| tempBlock.getType() == Material.WALL_SIGN
+				|| tempBlock.getType() == Material.SIGN_POST)
 		{
 			return false;
 		}
@@ -87,73 +108,107 @@ public class ArrowDetectorListener implements Listener {
 			return true;
 		}
 	}
-	
-	public void signWarning(Block block, int code)
+
+	public boolean isValidBlock(Block block)
+	{
+		if(block == null)
+			return false;
+
+		if (block.getType() == Material.AIR
+				|| block.getType() == Material.STEP
+				|| block.getType() == Material.TNT
+				|| block.getType() == Material.COBBLESTONE_STAIRS
+				|| block.getType() == Material.WOOD_STAIRS
+				|| block.getType() == Material.BRICK_STAIRS
+				|| block.getType() == Material.SMOOTH_STAIRS
+				|| block.getType() == Material.THIN_GLASS
+				|| block.getType() == Material.IRON_FENCE
+				|| block.getType() == Material.CACTUS
+				|| block.getType() == Material.WEB
+				|| block.getType() == Material.PISTON_BASE
+				|| block.getType() == Material.PISTON_EXTENSION
+				|| block.getType() == Material.PISTON_MOVING_PIECE
+				|| block.getType() == Material.PISTON_STICKY_BASE
+				|| block.getType() == Material.GLOWSTONE
+				|| block.getType() == Material.WALL_SIGN
+				|| block.getType() == Material.SIGN_POST)
+		{
+			return false;
+		}
+		else
+			return true;
+	}
+
+	public void signWarning(Block block)
 	{
 		Sign sign = (Sign) block.getState();
-		switch(code)
-		{
-		case 1:
-			sign.setLine(2, "Bad block");
-			sign.setLine(3, "Behind sign");
-			sign.update();
-			break;
 
-		default:
-			break;
-		}
+		sign.setLine(1, ChatColor.DARK_RED + "Sign is on");
+		sign.setLine(2, ChatColor.DARK_RED + "a BAD BLOCK");
+		sign.update();
 	}
-	
+
 	@EventHandler
-	public void onSignChange(SignChangeEvent event) //Called when a sign is created, and the text edited
+	public void onSignChange(SignChangeEvent event) //Called when a sign is created, and after the text entered
 	{
-		if (event.getLine(0).equalsIgnoreCase("[ad]"))
+		Block b = event.getBlock();
+    	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
+        Block attachedBlock = b.getRelative(s.getAttachedFace());
+
+		if (isValidBlock(attachedBlock))
 		{
-			
-			Block b = event.getBlock();
 	    	int posX = 0;
 	    	int posY = 0;
 	    	int posZ = 0;
-	    	
-	    	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
-	        Block attachedBlock = b.getRelative(s.getAttachedFace());
-	        posX = attachedBlock.getX();
-	        posY = attachedBlock.getY();
-	        posZ = attachedBlock.getZ();
-	        
-	        Player player = event.getPlayer();
-	        player.sendMessage(ChatColor.AQUA + "New arrow detecting block created!");
-	        player.sendMessage(ChatColor.GOLD + "Located at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
+
+	        if(event.getLine(0).equalsIgnoreCase("[ad]")) {
+	        	posX = attachedBlock.getX();
+	 	        posY = attachedBlock.getY();
+	 	        posZ = attachedBlock.getZ();
+
+	 	        Player player = event.getPlayer();
+	 	        player.sendMessage(ChatColor.AQUA + "New arrow detecting block created!");
+	 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
+	        }
 		}
+		else {
+			event.setLine(1, ChatColor.DARK_RED + "Sign is on");
+			event.setLine(2, ChatColor.DARK_RED + "a BAD BLOCK");
+			event.getBlock().getState().update(true);
+        }
 	}
 
 	@EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) 
+    public void onProjectileHit(ProjectileHitEvent event)
 	{
 		Entity projectile = event.getEntity();
         if(!(projectile instanceof Arrow)){
-        	 return;	
+        	 return;
         }
-        
+
         Arrow arrow = (Arrow)projectile;
-        //Player p = (Player)arrow.getShooter();
+        Entity entity = arrow.getShooter();
+        if(!(entity instanceof Player)) {
+        	return;
+        }
+        //Player p = (Player)entity;
         World world = arrow.getWorld();
         BlockIterator bi = new BlockIterator(world, arrow.getLocation().toVector(), arrow.getVelocity().normalize(), 0, 4);
         Block hit = null;
-        
+
         while(bi.hasNext())
         {
             hit = bi.next();
-            if(hit.getTypeId()!=0) //Grass/etc should be added probably since arrows doesn't collide with them
+            if(isValidBlock(hit))
             {
                 break;
             }
         }
-        
-        if(hit.getTypeId()==35) //Hit wool!
+
+        if(isValidBlock(hit))
         {
         	//hitBlock = hit;
-        	//p.sendMessage("Hit wool!");
+        	//p.sendMessage(hit.getType().toString());
         	for(int z = -1; z <= 1; z++) {
         		for(int x = -1; x <= 1; x++) {
         			for(int y = 0; y <= 1; y++) {
@@ -162,7 +217,13 @@ public class ArrowDetectorListener implements Listener {
         					if (hitSign.getState() instanceof Sign) {
         						Sign hitSignSign = (Sign)hitSign.getState();
         						if (hitSignSign.getLine(0).equalsIgnoreCase("[ad]")){
-        							signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData());
+
+        					    	org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
+        					        Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
+
+        							if(attachedBlock.equals(hit)) {
+            							signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData());
+        							}
         						}
         					}
         				}
@@ -171,7 +232,7 @@ public class ArrowDetectorListener implements Listener {
         	}
         }
 	}
-	
+
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event)
 	{
@@ -187,20 +248,14 @@ public class ArrowDetectorListener implements Listener {
 			}
 		}
 	}
-	
+
 	public void signToRestone(final Sign hitSign, final Block hitBlock, Material hitSignType, final Byte hitSignData)
 	{
+		final String[] lines;
 		if (hitSign.getType() == Material.SIGN_POST)
 		{
 			isWall = false;
-			if (!isValidLocation(hitBlock))
-			{
-				signWarning(hitBlock, 1);
-			}
-			else
-			{
-				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(), (byte) 0x5,true);
-			}
+			hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(), (byte) 0x5,true);
 		}
 		else if (hitSign.getType() == Material.WALL_SIGN)
 		{
@@ -208,54 +263,27 @@ public class ArrowDetectorListener implements Listener {
 			byte data = hitBlock.getData(); // Correspond to the direction of the wall sign
 			if (data == 0x2) //South
 			{
-				if (!isValidWallLocation(hitBlock))
-				{
-					signWarning(hitBlock, 1);
-				}
-				else
-				{
-					hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x4, true);
-				}
+				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x4, true);
 			}
 			else if (data == 0x3) //North
 			{
-				if (!isValidWallLocation(hitBlock))
-				{
-					signWarning(hitBlock, 1);
-				}
-				else
-				{
-					hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x3, true);
-				}
+				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x3, true);
 			}
 			else if (data == 0x4) //East
 			{
-				if (!isValidWallLocation(hitBlock))
-				{
-					signWarning(hitBlock, 1);
-				}
-				else
-				{
-					hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x2, true);
-				}
+				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x2, true);
 			}
 			else if (data == 0x5) //West
 			{
-				if (!isValidWallLocation(hitBlock))
-				{
-					signWarning(hitBlock, 1);
-				}
-				else
-				{
-					hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x1, true);
-				}
+				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x1, true);
 			}
 			else // Not West East North South ...
 			{
 				ArrowDetect.getADLogger().info("Strange Data !");
 			}
 		}
-		
+		lines = hitSign.getLines();
+
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				try {
@@ -274,8 +302,10 @@ public class ArrowDetectorListener implements Listener {
 
 					if (hitSign instanceof Sign) {
 						Sign signtemp = (Sign) hitBlock.getState();
-						signtemp.setLine(0, "[AD]");
-						signtemp.update(true);
+						for(int i = 0;1 < 4;i++) {
+							signtemp.setLine(i, lines[i]);
+							signtemp.update(true);
+						}
 						//plugin.getServer().broadcastMessage(ChatColor.AQUA + "Torch(s) stay on for 2 secs only!");
 					}
 				}
