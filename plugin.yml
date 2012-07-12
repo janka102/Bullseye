@@ -2,4 +2,4 @@ main: com.github.janka102.arrowdetect.ArrowDetect
 name: ArrowDetector
 version: 1.0
 author: Jesse Smick
-description: This makes a block detect an arrow with a sign, then changes the sign into a redstone torch for 2 seconds.
+description: This makes a block detect an arrow with a sign, then changes the sign into a redstone torch for a specified amount of time (default, 2 seconds).
