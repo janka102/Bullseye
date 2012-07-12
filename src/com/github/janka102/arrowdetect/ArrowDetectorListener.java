@@ -108,7 +108,11 @@ public class ArrowDetectorListener implements Listener {
 			return true;
 		}
 	}
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 	public boolean isValidBlock(Block block)
 	{
 		if(block == null)
@@ -133,10 +137,28 @@ public class ArrowDetectorListener implements Listener {
 				|| block.getType() == Material.WALL_SIGN
 				|| block.getType() == Material.SIGN_POST)
 		{
+<<<<<<< HEAD
 			return false;
 		}
 		else
 			return true;
+=======
+			//plugin.getServer().broadcastMessage(ChatColor.DARK_RED + "INVALID BLOCK!");
+			return false;
+		}
+		else
+			//plugin.getServer().broadcastMessage(ChatColor.DARK_GREEN + "VALID BLOCK!");
+			return true;
+	}
+	
+	public void signWarning(Block block)
+	{
+		Sign sign = (Sign) block.getState();
+		
+		sign.setLine(1, ChatColor.DARK_RED + "Sign is on");
+		sign.setLine(2, ChatColor.DARK_RED + "a BAD BLOCK");
+		sign.update();
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 	}
 
 	public void signWarning(Block block)
@@ -154,18 +176,30 @@ public class ArrowDetectorListener implements Listener {
 		Block b = event.getBlock();
     	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
         Block attachedBlock = b.getRelative(s.getAttachedFace());
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 		if (isValidBlock(attachedBlock))
 		{
 	    	int posX = 0;
 	    	int posY = 0;
 	    	int posZ = 0;
+<<<<<<< HEAD
 
+=======
+	        
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 	        if(event.getLine(0).equalsIgnoreCase("[ad]")) {
 	        	posX = attachedBlock.getX();
 	 	        posY = attachedBlock.getY();
 	 	        posZ = attachedBlock.getZ();
+<<<<<<< HEAD
 
+=======
+	 	        
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 	 	        Player player = event.getPlayer();
 	 	        player.sendMessage(ChatColor.AQUA + "New arrow detecting block created!");
 	 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
@@ -204,7 +238,11 @@ public class ArrowDetectorListener implements Listener {
                 break;
             }
         }
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
         if(isValidBlock(hit))
         {
         	//hitBlock = hit;
@@ -217,10 +255,17 @@ public class ArrowDetectorListener implements Listener {
         					if (hitSign.getState() instanceof Sign) {
         						Sign hitSignSign = (Sign)hitSign.getState();
         						if (hitSignSign.getLine(0).equalsIgnoreCase("[ad]")){
+<<<<<<< HEAD
 
         					    	org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
         					        Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
 
+=======
+        							
+        					    	org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
+        					        Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
+        					        
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
         							if(attachedBlock.equals(hit)) {
             							signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData());
         							}
@@ -283,7 +328,11 @@ public class ArrowDetectorListener implements Listener {
 			}
 		}
 		lines = hitSign.getLines();
+<<<<<<< HEAD
 
+=======
+		
+>>>>>>> Added more checks to see if block is valid. Now text shows on the sign that it was placed on an invalid block, if that is true. Also, it now ignores if the sign is next to but not connected to the block hit.
 		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
 			public void run() {
 				try {
