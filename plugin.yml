@@ -1,5 +1,5 @@
-main: com.github.janka102.arrowdetect.ArrowDetect
-name: ArrowDetector
+main: com.github.janka102.bullseye.Bullseye
+name: Bullseye
 version: 1.0
 author: Jesse Smick
-description: This makes a block detect an arrow with a sign, then changes the sign into a redstone torch for a specified amount of time (default, 2 seconds).
+description: This makes a block detect an arrow with a Bullseye sign, then changes that sign into a redstone torch for a specified amount of time when hit (default 2 seconds).
