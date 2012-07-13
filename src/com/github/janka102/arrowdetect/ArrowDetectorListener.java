@@ -179,6 +179,22 @@ public class ArrowDetectorListener implements Listener {
 			event.getBlock().getState().update(true);
         }
 	}
+	
+	@EventHandler
+	public void onBlockBreak(BlockBreakEvent event)
+	{
+		if (event.getBlock().getState() instanceof Sign)
+		{
+			Sign signObject = (Sign) event.getBlock().getState();
+			if (signObject.getLine(0).equalsIgnoreCase("[ad]"))
+			{
+				if (signObject.getLine(0).equalsIgnoreCase("[ad]"))
+				{
+					event.getPlayer().sendMessage("[ArrowDetector] Succesfully removed this sign!");
+				}
+			}
+		}
+	}
 
 	@EventHandler
     public void onProjectileHit(ProjectileHitEvent event)
@@ -235,22 +251,6 @@ public class ArrowDetectorListener implements Listener {
         }
 	}
 
-	@EventHandler
-	public void onBlockBreak(BlockBreakEvent event)
-	{
-		if (event.getBlock().getState() instanceof Sign)
-		{
-			Sign signObject = (Sign) event.getBlock().getState();
-			if (signObject.getLine(0).equalsIgnoreCase("[ad]"))
-			{
-				if (signObject.getLine(0).equalsIgnoreCase("[ad]"))
-				{
-					event.getPlayer().sendMessage("[ArrowDetector] Succesfully removed this sign!");
-				}
-			}
-		}
-	}
-
 	public void signToRestone(final Sign hitSign, final Block hitBlock, Material hitSignType, final Byte hitSignData)
 	{
 		final String[] lines;
@@ -304,16 +304,16 @@ public class ArrowDetectorListener implements Listener {
 
 					if (hitSign instanceof Sign) {
 						Sign signtemp = (Sign) hitBlock.getState();
-						for(int i = 0;1 < 4;i++) {
+						for(int i = 0;i < 4;i++) {
 							signtemp.setLine(i, lines[i]);
 							signtemp.update(true);
 						}
-						//plugin.getServer().broadcastMessage(ChatColor.AQUA + "Torch(s) stay on for 2 secs only!");
+						//plugin.getServer().broadcastMessage(ChatColor.AQUA + "Changed sign back.");
 					}
 				}
 				catch (RuntimeException e)
 				{
-					ArrowDetect.getADLogger().severe("Error while updating redstone signToRestone :"+e.getClass()+":"+e.getMessage());
+					ArrowDetect.getADLogger().severe("Error while updating redstone signToRestone :" + e.getClass() + ":" + e.getMessage());
 					return;
 				}
 			}
