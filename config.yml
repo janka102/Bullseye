@@ -1,4 +1,0 @@
-# time in ticks, 20 ticks = about 1 sec
-# whole numbers only!!
-# default: 40 (2 seconds)
-timeForRedstoneOn: 40

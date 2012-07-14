@@ -29,7 +29,7 @@ public class BullseyeListener implements Listener {
 			return false;
 		}
 
-		if (block.getType() == Material.AIR
+		if (block.getType() == Material.AIR //blocks that don't work with redstone torches
 				|| block.getType() == Material.STEP
 				|| block.getType() == Material.TNT
 				|| block.getType() == Material.COBBLESTONE_STAIRS
@@ -160,7 +160,6 @@ public class BullseyeListener implements Listener {
 
 	public void signToRestone(final Sign hitSign, final Block hitBlock, Material hitSignType, final Byte hitSignData) { //changes the Bullseye sign to a redstone torch for a specified time
 		final String[] lines = hitSign.getLines();
-		final long timeForRedstoneOn = plugin.getConfig().getInt("timeForRedstoneOn");
 		if (hitSign.getType() == Material.SIGN_POST) { //if the Bullseye sign is a sign post
 			isWall = false; //it is NOT a wall sign here
 			hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(), (byte) 0x5,true); //make the Bullseye sign into a redstone torch
@@ -212,6 +211,6 @@ public class BullseyeListener implements Listener {
 					return;
 				}
 			}
-		}, timeForRedstoneOn );
+		}, 25L );
 	}
 }

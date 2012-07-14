@@ -16,8 +16,6 @@ public class Bullseye extends JavaPlugin {
 	
 	@Override
     public void onDisable() {        
-        this.getConfig().options().copyDefaults(true);
-        this.saveConfig();
     }
 
 }
