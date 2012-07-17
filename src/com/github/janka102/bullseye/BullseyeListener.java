@@ -16,7 +16,6 @@ import org.bukkit.util.BlockIterator;
 
 public class BullseyeListener implements Listener {
 	public final Bullseye plugin;
-	private boolean isWall;
 	public String lines = "";
 	
 	public BullseyeListener(Bullseye r_plugin) {
@@ -55,18 +54,20 @@ public class BullseyeListener implements Listener {
 		}
 	}
 	
-	public void signWarning(Block block) { //Adds text to a Bullseye sign placed on an invalid  block.
+	public void signWarning(Block block, String firstLine) { //Changes text color to red of first line on a Bullseye sign placed on an invalid  block.
 		Sign sign = (Sign) block.getState();
 
-		sign.setLine(1, ChatColor.DARK_RED + "Sign is on");
-		sign.setLine(2, ChatColor.DARK_RED + "a BAD BLOCK");
+		sign.setLine(0, ChatColor.DARK_RED + firstLine);
 		sign.update();
 	}
 	
 	public boolean isBullseyeSign(String line) { //checks to make sure the sign is a Bullseye sign
-		if(line.equalsIgnoreCase("[be]")
+		if(line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bullseye]").toString())
+				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bull]").toString())
+				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[be]").toString())
 				|| line.equalsIgnoreCase("[bullseye]")
-				|| line.equalsIgnoreCase("[bull]"))
+				|| line.equalsIgnoreCase("[bull]")
+				|| line.equalsIgnoreCase("[be]"))
 		{
 			return true;
 		}
@@ -76,13 +77,16 @@ public class BullseyeListener implements Listener {
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) { //Called when a sign is created, and after the text is entered
 		
-        if(isBullseyeSign(event.getLine(0))) { //check sign text for Bullseye text
+        if(isBullseyeSign(event.getLine(0).trim())) { //Check sign text for Bullseye text
 
         	Block b = event.getBlock();
         	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
         	Block attachedBlock = b.getRelative(s.getAttachedFace());
 
         	if (isValidBlock(attachedBlock)) { //check if the player placed a sign on a correct block for Bullseye
+        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
+        		event.getBlock().getState().update(true);
+        		
         		int posX = 0;
         		int posY = 0;
         		int posZ = 0;
@@ -96,8 +100,7 @@ public class BullseyeListener implements Listener {
 	 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
         	}
         	else { //signal to the player that the block attached to the sign wont work with Bullseye
-        		event.setLine(2, ChatColor.DARK_RED + "Sign is on");
-        		event.setLine(3, ChatColor.DARK_RED + "a BAD BLOCK");
+        		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
         		event.getBlock().getState().update(true);
         	}
         }
@@ -123,10 +126,30 @@ public class BullseyeListener implements Listener {
 
         while(bi.hasNext()) {
             hit = bi.next();
-            if(hit.getType()!=Material.AIR)
+            if(hit.getType() != Material.AIR)
             {
                 break;
             }
+        }
+        
+        if(hit.getType() == Material.WALL_SIGN || hit.getType() == Material.SIGN_POST) {
+        	if (isBullseyeSign(((Sign)hit.getState()).getLine(0))) {
+        		Sign hitSignSign = (Sign)hit.getState();
+        		if(hitSignSign.getLine(1).trim().length() >= 1
+						|| hitSignSign.getLine(2).trim().length() >= 1
+						|| hitSignSign.getLine(3).trim().length() >= 1) { //checks if there is a message the player wants shown on hit
+					p.sendMessage("Bullseye! You hit " + hitSignSign.getLine(1) + hitSignSign.getLine(2) + hitSignSign.getLine(3) +"!");
+				}
+        		if (hit.getType() == Material.SIGN_POST) {
+					//going to change the sign to a redstone torch as Sign Post
+					signToRestone(hitSignSign, hit, hit.getType(), hit.getData(), true);	
+				}
+				else if (hit.getType() == Material.WALL_SIGN) {
+					//going to change the sign to a redstone torch as Wall Sign
+					signToRestone(hitSignSign, hit, hit.getType(), hit.getData(), false);
+				}
+        		
+        	}
         }
 
         if(isValidBlock(hit)) { //check if the block hit by the arrow would be a block that a Bullseye sign might go
@@ -144,10 +167,20 @@ public class BullseyeListener implements Listener {
                 				    Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
                 					if(attachedBlock.equals(hit)) { //checks to make sure the sign is attached to the block hit
                 						//Bullseye!!
-                						if(hitSignSign.getLine(1).trim().length() >= 1) { //checks if there is a message the player wants shown on hit
-                							p.sendMessage("You hit " + hitSignSign.getLine(1).trim() + "! Bullseye!!");
+                						if(hitSignSign.getLine(1).trim().length() >= 1
+                								|| hitSignSign.getLine(2).trim().length() >= 1
+                								|| hitSignSign.getLine(3).trim().length() >= 1) { //checks if there is a message the player wants shown on hit
+                							p.sendMessage("Bullseye! You hit " + hitSignSign.getLine(1) + hitSignSign.getLine(2) + hitSignSign.getLine(3) +"!");
                 						}
-                						signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData()); //going to change the sign to a redstone torch
+                						if (hitSign.getType() == Material.SIGN_POST) {
+                							//going to change the sign to a redstone torch as Sign Post
+                							signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData(), true);	
+                						}
+                						else if (hitSign.getType() == Material.WALL_SIGN) {
+                							//going to change the sign to a redstone torch as Wall Sign
+                							signToRestone(hitSignSign, hitSign, hitSign.getType(), hitSign.getData(), false);
+                						}
+                						
               						}
                					}
         					}
@@ -158,14 +191,12 @@ public class BullseyeListener implements Listener {
        	}
 	}
 
-	public void signToRestone(final Sign hitSign, final Block hitBlock, Material hitSignType, final Byte hitSignData) { //changes the Bullseye sign to a redstone torch for a specified time
+	public void signToRestone(final Sign hitSign, final Block hitBlock, Material hitSignType, final Byte hitSignData, final boolean isPost) { //changes the Bullseye sign to a redstone torch for a specified time
 		final String[] lines = hitSign.getLines();
-		if (hitSign.getType() == Material.SIGN_POST) { //if the Bullseye sign is a sign post
-			isWall = false; //it is NOT a wall sign here
+		if (isPost) { //if the Bullseye sign is a SIGN_POST
 			hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(), (byte) 0x5,true); //make the Bullseye sign into a redstone torch
 		}
-		else if (hitSign.getType() == Material.WALL_SIGN) { //if the Bullseye sign is a wall sign
-			isWall = true;//it IS a wall sign here
+		else if (!isPost) { //if the Bullseye sign is a WALL_SIGN
 			byte data = hitBlock.getData(); // Correspond to the direction of the wall sign
 			if (data == 0x2) { //South
 				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x4, true); //make the Bullseye sign into a redstone torch
@@ -179,23 +210,31 @@ public class BullseyeListener implements Listener {
 			else if (data == 0x5) { //West
 				hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x1, true); //make the Bullseye sign into a redstone torch
 			}
-			else { // Not West East North South ...
-				Bullseye.getBullLogger().info("Strange Data !");
+			else { // Not West East North South
+				Bullseye.getBullLogger().info("Strange Data!");
+				return;
 			}
 		}
+		else { // Not SIGN_POST or WALL_SIGN
+			Bullseye.getBullLogger().info("Strange Data!");
+			return;
+		}
 
-		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() { //run this after a delay
+		plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() { //Run this after a delay
 			public void run() {
 				try {
 					hitBlock.setType(Material.AIR); //clear the block
 
-					if (isWall) { //if a wall sign, put it back as one
+					if (!isPost) { //if a wall sign, put it back as one
 						hitBlock.setType(Material.WALL_SIGN);
 						hitBlock.setTypeIdAndData(Material.WALL_SIGN.getId(), hitSignData, true);
 					}
-					else { //if a sign post, put it back as one
+					else if (isPost) { //if a sign post, put it back as one
 						hitBlock.setType(Material.SIGN_POST);
 						hitBlock.setTypeIdAndData(Material.SIGN_POST.getId(), hitSignData, true);
+					}
+					else {
+						return;
 					}
 					Sign signtemp = (Sign) hitBlock.getState();
 					for(int i = 0;i < 4;i++) { //restore the original text of the Bullseye sign
