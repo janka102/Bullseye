@@ -4,6 +4,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -78,6 +79,66 @@ public class BullseyeListener implements Listener {
 	public void onSignChange(SignChangeEvent event) { //Called when a sign is created, and after the text is entered
 		
         if(isBullseyeSign(event.getLine(0).trim())) { //Check sign text for Bullseye text
+        	
+        	if(event.getBlock().getType() == Material.SIGN_POST){ //If sign post, check of its 'pointing' at an inventory holder(chest, dispenser, etc.)
+ 	        	Block signBlock = event.getBlock();
+ 	        	BlockFace signPostOrientation = null;
+ 	        	Byte wallSignData;
+ 	        	switch(event.getBlock().getData())
+ 	            {
+ 	           case 0: // '\0'
+ 	                signPostOrientation = BlockFace.WEST;
+ 	                wallSignData = Byte.valueOf((byte)3);
+ 	                break;
+
+ 	            case 4: // '\004'
+ 	                signPostOrientation = BlockFace.NORTH;
+ 	                wallSignData = Byte.valueOf((byte)4);
+ 	                break;
+
+ 	            case 8: // '\b'
+ 	                signPostOrientation = BlockFace.EAST;
+ 	                wallSignData = Byte.valueOf((byte)2);
+ 	                break;
+
+ 	            case 12: // '\f'
+ 	                signPostOrientation = BlockFace.SOUTH;
+ 	                wallSignData = Byte.valueOf((byte)5);
+ 	                break;
+
+ 	                default:
+ 	                	signPostOrientation = null;
+ 	                	wallSignData = null;
+ 	            }
+ 	        	if (signPostOrientation != null && wallSignData != null) {
+ 	        		Block blockbehind = signBlock.getRelative(signPostOrientation.getOppositeFace());
+ 	 	        	if(blockbehind.getState().getType() == Material.DISPENSER || blockbehind.getState().getType() == Material.FURNACE) {
+ 	 	        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
+ 	 	        		String[] signLines = event.getLines();
+ 	 	        		signBlock.setType(Material.WALL_SIGN);
+ 	 	        		signBlock.setData(wallSignData.byteValue());
+ 	 	        		//get the attached inventoryHolder
+ 	 	        		Block b = event.getBlock();
+ 	 	        		org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
+ 	 	        		Block attachedBlock = b.getRelative(s.getAttachedFace());
+ 	 	        		//gets coordinates of the inventoryHolder
+ 	 		        	int posX = attachedBlock.getX();
+ 	 		 	        int posY = attachedBlock.getY();
+ 	 		 	        int posZ = attachedBlock.getZ();
+ 	 		 	        // Notify player they have just created a new Bullseye block
+ 	 		 	        Player player = event.getPlayer();
+ 	 		 	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
+ 	 		 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
+ 	 	           	
+ 	 	        		Sign sign = (Sign)signBlock.getState();
+ 	 	        		for(int i = 0; i < signLines.length; i++) {
+ 	 	                   sign.setLine(i, signLines[i].toString());
+ 	 	        		}
+ 	 	        		sign.update(true);
+ 	 	        		return;
+ 	 	        	}
+ 	        	}
+ 	        }
 
         	Block b = event.getBlock();
         	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
@@ -87,19 +148,16 @@ public class BullseyeListener implements Listener {
         		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
         		event.getBlock().getState().update(true);
         		
-        		int posX = 0;
-        		int posY = 0;
-        		int posZ = 0;
-
-	        	posX = attachedBlock.getX();
-	 	        posY = attachedBlock.getY();
-	 	        posZ = attachedBlock.getZ();
+	 	        //gets coordinates of the attached block
+	        	int posX = attachedBlock.getX();
+	 	        int posY = attachedBlock.getY();
+	 	        int posZ = attachedBlock.getZ();
 	 	        // Notify player they have just created a new Bullseye block
 	 	        Player player = event.getPlayer();
 	 	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
 	 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
         	}
-        	else { //signal to the player that the block attached to the sign wont work with Bullseye
+        	else { //Signal to the player that the block attached to the sign wont work with Bullseye
         		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
         		event.getBlock().getState().update(true);
         	}
@@ -237,10 +295,10 @@ public class BullseyeListener implements Listener {
 						return;
 					}
 					Sign signtemp = (Sign) hitBlock.getState();
-					for(int i = 0;i < 4;i++) { //restore the original text of the Bullseye sign
+					for(int i = 0; i < lines.length; i++) { //restore the original text of the Bullseye sign
 						signtemp.setLine(i, lines[i]);
-						signtemp.update(true);
 					}
+					signtemp.update(true);
 					
 					//plugin.getServer().broadcastMessage(ChatColor.AQUA + "Changed sign back.");
 				}
