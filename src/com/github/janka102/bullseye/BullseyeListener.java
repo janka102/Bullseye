@@ -28,25 +28,25 @@ public class BullseyeListener implements Listener {
 		if(block == null) {
 			return false;
 		}
-
-		if (block.getType() == Material.AIR //blocks that don't work with redstone torches
-				|| block.getType() == Material.STEP
-				|| block.getType() == Material.TNT
-				|| block.getType() == Material.COBBLESTONE_STAIRS
-				|| block.getType() == Material.WOOD_STAIRS
-				|| block.getType() == Material.BRICK_STAIRS
-				|| block.getType() == Material.SMOOTH_STAIRS
-				|| block.getType() == Material.THIN_GLASS
-				|| block.getType() == Material.IRON_FENCE
-				|| block.getType() == Material.CACTUS
-				|| block.getType() == Material.WEB
-				|| block.getType() == Material.PISTON_BASE
-				|| block.getType() == Material.PISTON_EXTENSION
-				|| block.getType() == Material.PISTON_MOVING_PIECE
-				|| block.getType() == Material.PISTON_STICKY_BASE
-				|| block.getType() == Material.GLOWSTONE
-				|| block.getType() == Material.WALL_SIGN
-				|| block.getType() == Material.SIGN_POST)
+		Material blockType = block.getType();
+		if (blockType == Material.AIR //blocks that don't work with redstone torches
+				|| blockType == Material.STEP
+				|| blockType == Material.TNT
+				|| blockType == Material.COBBLESTONE_STAIRS
+				|| blockType == Material.WOOD_STAIRS
+				|| blockType == Material.BRICK_STAIRS
+				|| blockType == Material.SMOOTH_STAIRS
+				|| blockType == Material.THIN_GLASS
+				|| blockType == Material.IRON_FENCE
+				|| blockType == Material.CACTUS
+				|| blockType == Material.WEB
+				|| blockType == Material.PISTON_BASE
+				|| blockType == Material.PISTON_EXTENSION
+				|| blockType == Material.PISTON_MOVING_PIECE
+				|| blockType == Material.PISTON_STICKY_BASE
+				|| blockType == Material.GLOWSTONE
+				|| blockType == Material.WALL_SIGN
+				|| blockType == Material.SIGN_POST)
 		{
 			return false;
 		}
@@ -112,7 +112,12 @@ public class BullseyeListener implements Listener {
  	            }
  	        	if (signPostOrientation != null && wallSignData != null) {
  	        		Block blockbehind = signBlock.getRelative(signPostOrientation.getOppositeFace());
- 	 	        	if(blockbehind.getState().getType() == Material.DISPENSER || blockbehind.getState().getType() == Material.FURNACE) {
+ 	        		Material blockType = blockbehind.getState().getType();
+ 	 	        	if(blockType == Material.DISPENSER
+ 	 	        			|| blockType == Material.FURNACE
+ 	 	        			|| blockType == Material.NOTE_BLOCK
+ 	 	        			|| blockType == Material.WORKBENCH
+ 	 	        			|| blockType == Material.JUKEBOX) {
  	 	        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
  	 	        		String[] signLines = event.getLines();
  	 	        		signBlock.setType(Material.WALL_SIGN);
