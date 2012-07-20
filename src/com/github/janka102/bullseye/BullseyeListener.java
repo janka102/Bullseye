@@ -46,6 +46,7 @@ public class BullseyeListener implements Listener {
 				|| blockType == Material.PISTON_STICKY_BASE
 				|| blockType == Material.GLOWSTONE
 				|| blockType == Material.WALL_SIGN
+				|| blockType == Material.ENDER_PORTAL_FRAME
 				|| blockType == Material.SIGN_POST)
 		{
 			return false;
