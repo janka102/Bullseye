@@ -11,11 +11,13 @@ public class Bullseye extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		new BullseyeListener(this);
+		new BullseyeSignListener(this);		
 		logger.info("Bullseye enabled!");
 	}
 	
 	@Override
     public void onDisable() {
+		logger.info("Bullseye disabled!");
     }
 
 }
