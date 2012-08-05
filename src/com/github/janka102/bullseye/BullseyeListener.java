@@ -192,15 +192,19 @@ public class BullseyeListener implements Listener {
         	}
         	
         	Block[] hitBlockSign = getHitBlockSign(hit);
-        	for (Block bullseyeSign : hitBlockSign) {        		
+        	boolean h2oSigns = true;
+        	for (Block bullseyeSign : hitBlockSign) { 
         		if (bullseyeSign == null) {
             		continue;
             	}
             	Sign hitSignSign = (Sign) bullseyeSign.getState();
             	
             	if(isNearWater(bullseyeSign)) {
-        			p.sendMessage(ChatColor.RED + "Can't activate Bullseye sign with water next to it!");
-        			return;
+            		if (h2oSigns){
+            			p.sendMessage(ChatColor.RED + "Couldn't activate some Bullseye signs with water near them!");
+            		}
+            		h2oSigns = false;
+        			continue;
         		}
     			if(hitSignSign.getLine(1).trim().length() >= 1
     					|| hitSignSign.getLine(2).trim().length() >= 1
