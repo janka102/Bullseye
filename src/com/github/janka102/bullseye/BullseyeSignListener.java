@@ -26,22 +26,14 @@ public class BullseyeSignListener implements Listener {
 			if (blockType == Material.AIR //blocks that don't work with redstone torches
 					|| blockType == Material.STEP
 					|| blockType == Material.TNT
-					|| blockType == Material.COBBLESTONE_STAIRS
-					|| blockType == Material.WOOD_STAIRS
-					|| blockType == Material.BRICK_STAIRS
-					|| blockType == Material.SMOOTH_STAIRS
-					|| blockType == Material.THIN_GLASS
+					|| blockType.toString().contains("STAIRS")
+					|| blockType.toString().contains("GLASS")
 					|| blockType == Material.IRON_FENCE
 					|| blockType == Material.CACTUS
 					|| blockType == Material.WEB
-					|| blockType == Material.PISTON_BASE
-					|| blockType == Material.PISTON_EXTENSION
-					|| blockType == Material.PISTON_MOVING_PIECE
-					|| blockType == Material.PISTON_STICKY_BASE
+					|| blockType.toString().contains("PISTON")
 					|| blockType == Material.GLOWSTONE
-					|| blockType == Material.GLASS
-					|| blockType == Material.WALL_SIGN
-					|| blockType == Material.SIGN_POST
+					//|| blockType.toString().contains("SIGN")
 					|| blockType == Material.ENDER_PORTAL_FRAME)
 			{
 				return false;
@@ -51,15 +43,15 @@ public class BullseyeSignListener implements Listener {
 	}
 
 	public boolean isBullseyeSign(String line) { //checks to make sure the sign is a Bullseye sign
-		if(line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bullseye]").toString())
-				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bull]").toString())
-				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[be]").toString()))
+		if(line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bullseye]").toString()) || line.equalsIgnoreCase(("[bullseye]").toString())
+				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bull]").toString()) || line.equalsIgnoreCase(("[bull]").toString())
+				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[be]").toString()) || line.equalsIgnoreCase(("[be]").toString()))
 		{
 			return true;
 		}
 		return false;
 	}
-
+	
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) { //Called when a sign is created, and after the text is entered
 
