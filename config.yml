@@ -1,0 +1,30 @@
+# Defaults and Usage
+# =============
+# allowDispensers: false
+# 
+# Allow dispenser arrows to activate Bullseye signs.
+# If true, the message, if present, on lines 2-4 of the sign is not displayed.
+# =============
+# blockList:
+#   blacklist: true
+#   blocks:
+#   - BEDROCK
+# 
+# blockList determines which blocks can/can't be used as a Bullseye block,
+# the block you put the Bullseye sign on.
+# 
+#   blacklist: true = use the list for disabled blocks, 
+#              false = makes it a whitelist, i.e., allows only those blocks 
+#                      listed to be used as Bullseye blocks.
+# 
+#   blocks: a YML list of blocks to be used as a blacklist/whitelist.  Use bukkit
+#           standard names.
+#               Check http://dev.bukkit.org/server-mods/bullseye/ for a list of
+#           permanently disabled blocks.
+# =============
+
+allowDispensers: false
+blockList:
+  blacklist: true
+  blocks:
+  - BEDROCK
