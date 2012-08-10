@@ -4,64 +4,32 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 
 public class BullseyeSignListener implements Listener {
+	public final BullseyeSignHandler signHandle = new BullseyeSignHandler();
 	public final Bullseye plugin;
 
-	public BullseyeSignListener(Bullseye r_plugin) {
-		plugin = r_plugin;
+	public BullseyeSignListener(Bullseye b_plugin) {
+		plugin = b_plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
-
-	public boolean isValidBlock(Block block) { //Checks if the block hit, or the block a sign placed on, can even handle a redstone torch.
-		if(block == null) {
-			return false;
-		}
-			Material blockType = block.getType();
-			if (blockType == Material.AIR //blocks that don't work with redstone torches
-					|| blockType == Material.STEP
-					|| blockType == Material.TNT
-					|| blockType.toString().contains("STAIRS")
-					|| blockType.toString().contains("GLASS")
-					|| blockType == Material.IRON_FENCE
-					|| blockType == Material.CACTUS
-					|| blockType == Material.WEB
-					|| blockType.toString().contains("PISTON")
-					|| blockType == Material.GLOWSTONE
-					//|| blockType.toString().contains("SIGN")
-					|| blockType == Material.ENDER_PORTAL_FRAME)
-			{
-				return false;
-			}
-		
-		return true;
-	}
-
-	public boolean isBullseyeSign(String line) { //checks to make sure the sign is a Bullseye sign
-		if(line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bullseye]").toString()) || line.equalsIgnoreCase(("[bullseye]").toString())
-				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bull]").toString()) || line.equalsIgnoreCase(("[bull]").toString())
-				|| line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[be]").toString()) || line.equalsIgnoreCase(("[be]").toString()))
-		{
-			return true;
-		}
-		return false;
-	}
 	
+	//Called when a sign is created, and after the text is entered
 	@EventHandler
-	public void onSignChange(SignChangeEvent event) { //Called when a sign is created, and after the text is entered
+	public void onSignChange(SignChangeEvent event) {
 
-        if(isBullseyeSign(event.getLine(0).trim())) { //Check sign text for Bullseye text
+        if(signHandle.isBullseyeSign(event.getLine(0).trim())) {
 
-        	if(event.getBlock().getType() == Material.SIGN_POST){ //If sign post, check of its 'pointing' at a special block Crafting table, Dispenser, etc.
+        	//If sign post, check if its 'pointing' at a special block (crafting table, dispenser, etc.)
+        	if(event.getBlock().getType() == Material.SIGN_POST){
  	        	Block signBlock = event.getBlock();
- 	        	BlockFace signPostOrientation = null;
+ 	        	BlockFace signPostOrientation;
  	        	Byte wallSignData;
- 	        	switch(event.getBlock().getData())
+ 	        	switch(signBlock.getData())
  	            {
  	           case 0: // '\0'
  	                signPostOrientation = BlockFace.WEST;
@@ -83,9 +51,9 @@ public class BullseyeSignListener implements Listener {
  	                wallSignData = Byte.valueOf((byte)5);
  	                break;
 
- 	                default:
- 	                	signPostOrientation = null;
- 	                	wallSignData = null;
+ 	            default:
+ 	               	signPostOrientation = null;
+ 	                wallSignData = null;
  	            }
  	        	if (signPostOrientation != null && wallSignData != null) {
  	        		Block blockbehind = signBlock.getRelative(signPostOrientation.getOppositeFace());
@@ -95,14 +63,29 @@ public class BullseyeSignListener implements Listener {
  	 	        			|| blockType == Material.NOTE_BLOCK
  	 	        			|| blockType == Material.WORKBENCH
  	 	        			|| blockType == Material.JUKEBOX) {
- 	 	        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
+ 	 	        		
  	 	        		String[] signLines = event.getLines();
  	 	        		signBlock.setType(Material.WALL_SIGN);
  	 	        		signBlock.setData(wallSignData.byteValue());
+ 	 	        		
  	 	        		//get the attached inventoryHolder
  	 	        		Block b = event.getBlock();
  	 	        		org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
  	 	        		Block attachedBlock = b.getRelative(s.getAttachedFace());
+ 	 	        		
+ 	 	        		if ((blockType == Material.DISPENSER && !plugin.allowDispensers)
+ 	 	        				|| !signHandle.isValidBlock(attachedBlock)) {
+ 	 	        			event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
+ 	 	        			event.getBlock().getState().update(true);
+ 	 	        			
+ 	 	        			signHandle.updateSign(signBlock, signLines);
+ 	 	        			
+ 	 	        			return;
+ 	 	        		}
+ 	 	        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
+ 	 	        		
+ 	 	        		signHandle.updateSign(signBlock, signLines);
+ 	 	        		
  	 	        		//gets coordinates of the inventoryHolder
  	 		        	int posX = attachedBlock.getX();
  	 		 	        int posY = attachedBlock.getY();
@@ -112,11 +95,6 @@ public class BullseyeSignListener implements Listener {
  	 		 	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
  	 		 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
 
- 	 	        		Sign sign = (Sign)signBlock.getState();
- 	 	        		for(int i = 0; i < signLines.length; i++) {
- 	 	                   sign.setLine(i, signLines[i].toString());
- 	 	        		}
- 	 	        		sign.update(true);
  	 	        		return;
  	 	        	}
  	        	}
@@ -126,7 +104,8 @@ public class BullseyeSignListener implements Listener {
         	org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
         	Block attachedBlock = b.getRelative(s.getAttachedFace());
 
-        	if (isValidBlock(attachedBlock)) { //check if the player placed a sign on a correct block for Bullseye
+        	//check if the player placed a sign on a correct block for Bullseye
+        	if (signHandle.isValidBlock(attachedBlock)) {
         		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
         		event.getBlock().getState().update(true);
 
@@ -139,7 +118,8 @@ public class BullseyeSignListener implements Listener {
 	 	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
 	 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
         	}
-        	else { //Signal to the player that the block attached to the sign wont work with Bullseye
+        	//Signal to the player that the block attached to the sign wont work with Bullseye
+        	else {
         		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
         		event.getBlock().getState().update(true);
         	}
