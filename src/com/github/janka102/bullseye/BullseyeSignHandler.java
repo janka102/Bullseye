@@ -14,39 +14,37 @@ public class BullseyeSignHandler {
 		}
 				
 		Material blockType = block.getType();
-		String blockName = blockType.toString().toUpperCase();
+		String blockName = blockType.toString().toLowerCase();
 		
 		//blocks that don't work with redstone torches
-		if (blockType == Material.AIR
-				|| blockType == Material.STEP
-				|| blockType == Material.TNT
-				|| blockType.toString().contains("STAIRS")
-				|| blockType.toString().contains("GLASS")
-				|| blockType == Material.IRON_FENCE
-				|| blockType == Material.CACTUS
-				|| blockType == Material.WEB
-				|| blockType.toString().contains("PISTON")
-				|| blockType == Material.GLOWSTONE
-				//|| blockType.toString().contains("SIGN")
-				|| blockType == Material.ENDER_PORTAL_FRAME)
+		if (blockType == Material.STEP
+		|| blockType == Material.TNT
+		|| blockType.toString().contains("STAIRS")
+		|| blockType.toString().contains("GLASS")
+		|| blockType == Material.IRON_FENCE
+		|| blockType == Material.CACTUS
+		|| blockType == Material.WEB
+		|| blockType.toString().contains("PISTON")
+		|| blockType == Material.GLOWSTONE
+		|| blockType == Material.ENDER_PORTAL_FRAME)
 		{
 			return false;
 		}
 		
 		//user defined list of blocks to either blacklist
 		if (Bullseye.blacklist) {
-			if (Bullseye.blocks.contains(blockName)){
+			if (Bullseye.blocks.toString().toLowerCase().contains(blockName)){
 				return false;
 			}
+			return true;
 		}
 		// or whitelist
 		else {
-			if (!Bullseye.blocks.contains(blockName)){
-				return false;
+			if (Bullseye.blocks.toString().toLowerCase().contains(blockName)){
+				return true;
 			}
+			return false;
 		}
-		
-		return true;
 	}
 	
 	public boolean isNearWater(Block sign) {
@@ -107,13 +105,16 @@ public class BullseyeSignHandler {
     				if(x*x+y*y+z*z == 1) {
     					// get the block to the North, South, East, West, and Top of the block hit
     					Block hitSign = hit.getRelative(x, y, z);
+    					
     					if(hitSign.getState() instanceof Sign) {
         					Sign hitSignSign = (Sign)hitSign.getState();
+        					
         					//checks to see if the sign next to the block hit is a Bullseye sign
-            				if (isBullseyeSign(hitSignSign.getLine(0))) {
+            				if (isBullseyeSign(hitSignSign.getLine(0)) || isBullseyeSignBlue(hitSignSign.getLine(0)) || isBullseyeSignRed(hitSignSign.getLine(0))) {
             					org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
             				    Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
-            				  //checks to make sure the sign is attached to the block hit
+            				    
+            				    //checks to make sure the sign is attached to the block hit
             					if(attachedBlock.equals(hit)) {
             						signs[numSigns] = hitSign;
             						numSigns++;
