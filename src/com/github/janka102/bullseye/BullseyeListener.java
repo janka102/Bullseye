@@ -18,43 +18,10 @@ import org.bukkit.util.BlockIterator;
 public class BullseyeListener implements Listener {
 	public final BullseyeSignHandler signHandle = new BullseyeSignHandler();
 	public final Bullseye plugin;
-	public String lines = "";
 	
 	public BullseyeListener(Bullseye b_plugin) {
 		plugin = b_plugin;
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
-	}
-	
-	public Block[] getHitBlockSign(Block hit){
-		Block[] signs = new Block[5];
-		int numSigns = 0;
-		for(int z = -1; z <= 1; z++) {
-    		for(int x = -1; x <= 1; x++) {
-    			for(int y = 0; y <= 1; y++) {
-    				if(x*x+y*y+z*z == 1) {
-    					// get the block to the North, South, East, West, and Top of the block hit
-    					Block hitSign = hit.getRelative(x, y, z);
-    					
-    					if(hitSign.getState() instanceof Sign) {
-        					Sign hitSignSign = (Sign)hitSign.getState();
-        					
-        					//checks to see if the sign next to the block hit is a Bullseye sign
-            				if (signHandle.isBullseyeSign(hitSignSign.getLine(0)) || signHandle.isBullseyeSignBlue(hitSignSign.getLine(0)) || signHandle.isBullseyeSignRed(hitSignSign.getLine(0))) {
-            					org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
-            				    Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
-            				    
-            				    //checks to make sure the sign is attached to the block hit
-            					if(attachedBlock.equals(hit)) {
-            						signs[numSigns] = hitSign;
-            						numSigns++;
-          						}
-           					}
-    					}
-   					}
-   				}
-  			}
-   		}
-		return signs;
 	}
 
 	@EventHandler
@@ -76,7 +43,7 @@ public class BullseyeListener implements Listener {
         	p = (Player)entity;
         }
         else if (!(arrow.getShooter() instanceof LivingEntity) && !plugin.allowDispensers) {
-        	//Dispenser, but disabled in config
+        	//Dispenser, but disabled in config.yml
         	return;
         }
 
@@ -92,28 +59,27 @@ public class BullseyeListener implements Listener {
             hit = bi.next();
             type = hit.getType();
             if(type != Material.AIR
-            		&& type != Material.WATER
-            		&& type != Material.STATIONARY_WATER
-            		&& type != Material.LAVA
-         			&& type != Material.STATIONARY_LAVA
-            		&& type != Material.LONG_GRASS
-            		&& type != Material.REDSTONE_WIRE
-            		&& type != Material.SAPLING
-            		&& type != Material.WEB
-            		&& type != Material.YELLOW_FLOWER
-            		&& type != Material.RED_ROSE
-            		&& type != Material.DIODE_BLOCK_OFF
-            		&& type != Material.DIODE_BLOCK_ON
-            		&& !type.toString().contains("TRIPWIRE") //for 1.3.1
-            		&& type != Material.REDSTONE_TORCH_ON
-            		&& type != Material.REDSTONE_TORCH_OFF
-            		&& type != Material.TORCH
-            		&& type != Material.VINE
-            		&& type != Material.RAILS
-            		&& type != Material.DETECTOR_RAIL
-            		&& type != Material.POWERED_RAIL)
+            && type != Material.WATER
+          	&& type != Material.STATIONARY_WATER
+          	&& type != Material.LAVA
+         	&& type != Material.STATIONARY_LAVA
+          	&& type != Material.LONG_GRASS
+           	&& type != Material.REDSTONE_WIRE
+            && type != Material.SAPLING
+            && type != Material.WEB
+            && type != Material.YELLOW_FLOWER
+            && type != Material.RED_ROSE
+            && type != Material.DIODE_BLOCK_OFF
+            && type != Material.DIODE_BLOCK_ON
+            && !type.toString().contains("TRIPWIRE") //for 1.3.1
+            && type != Material.REDSTONE_TORCH_ON
+            && type != Material.REDSTONE_TORCH_OFF
+            && type != Material.TORCH
+            && type != Material.VINE
+            && type != Material.RAILS
+            && type != Material.DETECTOR_RAIL
+            && type != Material.POWERED_RAIL)
             {
-            	//type = hit.getType();
             	break;
             }
         }
@@ -132,7 +98,7 @@ public class BullseyeListener implements Listener {
         	
         if(signHandle.isValidBlock(hit)) {
         	//get all bullseye signs attched to the hit block and change them to a redstone torch
-        	Block[] hitBlockSign = getHitBlockSign(hit);
+        	Block[] hitBlockSign = signHandle.getHitBlockSign(hit);
         	boolean h2oSigns = true;
         	for (Block bullseyeSign : hitBlockSign) {
         		if (bullseyeSign == null) {
@@ -141,12 +107,11 @@ public class BullseyeListener implements Listener {
             	Sign hitSignSign = (Sign) bullseyeSign.getState();
             	
             	if (signHandle.isBullseyeSignRed(hitSignSign.getLine(0)) || signHandle.isBullseyeSign(hitSignSign.getLine(0))) {
-        			
+            		
         			String newLine = hitSignSign.getLine(0).replace(ChatColor.DARK_RED.toString(), "");
         			newLine = ChatColor.DARK_BLUE.toString() + newLine;
         			String[] lines = hitSignSign.getLines();
         			lines[0] = newLine;
-        			
         			signHandle.updateSign(bullseyeSign, lines);
         		}
             	
@@ -158,6 +123,7 @@ public class BullseyeListener implements Listener {
             		}
         			continue;
         		}
+            	
             	//checks if there is a message the player wants shown on hit
     			if(p != null &&
     					(hitSignSign.getLine(1).trim().length() >= 1
@@ -165,6 +131,7 @@ public class BullseyeListener implements Listener {
     						|| hitSignSign.getLine(3).trim().length() >= 1)) {
     				p.sendMessage("Bullseye! You hit " + hitSignSign.getLine(1) + hitSignSign.getLine(2) + hitSignSign.getLine(3) +"!");
     			}
+    			
     			if (bullseyeSign.getType() == Material.SIGN_POST) {
     				//change the sign to a redstone torch as SIGN_POST
     				signHandle.signToRestone(plugin, hitSignSign, bullseyeSign, bullseyeSign.getType(), bullseyeSign.getData(), true);	
@@ -176,13 +143,13 @@ public class BullseyeListener implements Listener {
         	}
 		}
         else {
-        	Block[] hitBlockSign = getHitBlockSign(hit);
+        	Block[] hitBlockSign = signHandle.getHitBlockSign(hit);
         	for (Block bullseyeSign : hitBlockSign) {
         		if (bullseyeSign == null) {
             		continue;
             	}
         		Sign bullSign = (Sign)bullseyeSign.getState();
-        		        		
+        		
         		if (signHandle.isBullseyeSignBlue(bullSign.getLine(0)) || signHandle.isBullseyeSign(bullSign.getLine(0))) {
         			
         			String newLine = bullSign.getLine(0).replace(ChatColor.DARK_BLUE.toString(), "");
