@@ -30,10 +30,6 @@ public class Bullseye extends JavaPlugin {
         blocks = this.getConfig().getStringList("blockList.blocks");
         
 		logger.info("Bullseye enabled!");
-		
-		for(String blocks : Bullseye.blocks){
-        	logger.info(blocks);
-        }
 	}
 	
 	@Override
