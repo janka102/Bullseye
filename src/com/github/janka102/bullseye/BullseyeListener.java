@@ -47,7 +47,6 @@ public class BullseyeListener implements Listener {
         	return;
         }
 
-
         World world = arrow.getWorld();
         
         BlockIterator bi = new BlockIterator(world, arrow.getLocation().toVector(), arrow.getVelocity().normalize(), 0, 4);
