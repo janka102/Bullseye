@@ -1,6 +1,6 @@
 # Defaults and Usage
 # =============
-# allowDispensers: false
+# allowDispensers: true
 # 
 # Allow dispenser arrows to activate Bullseye signs.
 # If true, the message, if present, on lines 2-4 of the sign is not displayed.
@@ -23,7 +23,7 @@
 #           permanently disabled blocks.
 # =============
 
-allowDispensers: false
+allowDispensers: true
 blockList:
   blacklist: true
   blocks:
