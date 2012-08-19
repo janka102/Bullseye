@@ -83,39 +83,39 @@ public class BullseyeSignListener implements Listener {
  	 	        	}
  	        	}
         	}
+        	
+        	//get the attached block
+      		Block b = event.getBlock();
+      		org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
+      		Block attachedBlock = b.getRelative(s.getAttachedFace());
+      		
+
+      		if (blockType == Material.DISPENSER && !plugin.allowDispensers) {
+      			
+        		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
+        		event.getBlock().getState().update(true);
+        		return;
+      		}
+      		//check if the player placed a sign on a correct block for Bullseye
+      		else if (signHandle.isValidBlock(attachedBlock)) {
+        		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
+        		event.getBlock().getState().update(true);
+
+     	        //gets coordinates of the attached block
+            	int posX = attachedBlock.getX();
+     	        int posY = attachedBlock.getY();
+     	        int posZ = attachedBlock.getZ();
+     	        
+     	        // Notify player they have just created a new Bullseye block
+     	        Player player = event.getPlayer();
+     	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
+     	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
+        	}
+        	//Signal to the player that the block attached to the sign wont work with Bullseye
+        	else {
+        		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
+        		event.getBlock().getState().update(true);
+        	}
         }
-        
-        //get the attached block
-  		Block b = event.getBlock();
-  		org.bukkit.material.Sign s = (org.bukkit.material.Sign) b.getState().getData();
-  		Block attachedBlock = b.getRelative(s.getAttachedFace());
-  		
-
-  		if (blockType == Material.DISPENSER && !plugin.allowDispensers) {
-  			
-    		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
-    		event.getBlock().getState().update(true);
-    		return;
-  		}
-  		//check if the player placed a sign on a correct block for Bullseye
-  		else if (signHandle.isValidBlock(attachedBlock)) {
-    		event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0));
-    		event.getBlock().getState().update(true);
-
- 	        //gets coordinates of the attached block
-        	int posX = attachedBlock.getX();
- 	        int posY = attachedBlock.getY();
- 	        int posZ = attachedBlock.getZ();
- 	        
- 	        // Notify player they have just created a new Bullseye block
- 	        Player player = event.getPlayer();
- 	        player.sendMessage(ChatColor.AQUA + "New Bullseye block created!");
- 	        player.sendMessage(ChatColor.GOLD + "Location at x: " + posX + " y: " + posY + " z: " + posZ + ChatColor.GREEN + " Block type: " + attachedBlock.getType() );
-    	}
-    	//Signal to the player that the block attached to the sign wont work with Bullseye
-    	else {
-    		event.setLine(0, ChatColor.DARK_RED + event.getLine(0));
-    		event.getBlock().getState().update(true);
-    	}
 	}
 }
