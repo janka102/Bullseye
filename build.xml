@@ -1,33 +1,36 @@
-<project name="Bullseye" basedir="." default="main">
-    <property name="src.dir" value="src"/>
-    <property name="build.dir" value="build"/>
-    <property name="bin.dir" value="bin"/>
-    <property name="lib.dir" value="lib"/>
+<project name="Bullseye" default="build" basedir=".">
+    <property name="pluginname" value="Bullseye"/>
+    <property name="bukkit.jar" location="lib/bukkit.jar"/>
+    <property name="plugins" location="../server/plugins/"/>
+
+    <property name="src" location="src"/>
+    <property name="bin" location="bin"/>
+    <property name="build" location="build"/>
     
-    <path id="bukkitpath">
-        <fileset dir="${lib.dir}" includes="bukkit-1.6.4-R2.0.jar"/>
-    </path>
-
-    <property name="main-class"  value="oata.HelloWorld"/>
-
-    <target name="clean">
-        <delete dir="${build.dir}"/>
-        <delete dir="${bin.dir}"/>
-    </target>
-
     <target name="compile">
-        <mkdir dir="${bin.dir}"/>
-        <javac srcdir="${src.dir}" destdir="${bin.dir}" classpathref="bukkitpath"/>
+        <mkdir dir="${bin}"/>
+        <javac srcdir="${src}" destdir="${bin}" includeantruntime="false">
+            <classpath>
+                <pathelement location="${bukkit.jar}"/>
+            </classpath>
+        </javac>
     </target>
-
-    <target name="jar" depends="compile">
-        <mkdir dir="${build.dir}"/>
-        <jar destfile="${build.dir}/${ant.project.name}.jar" basedir="${bin.dir}">
-            <manifest>
-                <attribute name="Main-Class" value="${main-class}"/>
-            </manifest>
+    
+    <target name="build" depends="compile">
+        <mkdir dir="${build}"/>
+        <jar jarfile="${build}/${pluginname}.jar">
+            <fileset dir="${bin}"/>
+            <fileset file="plugin.yml"/>
+            <fileset file="config.yml"/>
         </jar>
     </target>
-
-    <target name="main" depends="clean,jar"/>
+    
+    <target name="deploy" depends="build">
+        <copy file="${build}/${pluginname}.jar" todir="${plugins}"/>
+    </target>
+    
+    <target name="clean">
+        <delete dir="${bin}"/>
+        <delete dir="${build}"/>
+    </target>
 </project>
