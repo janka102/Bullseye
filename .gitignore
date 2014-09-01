@@ -1,10 +1,2 @@
-
 .DS_Store
-
-.classpath
-
-.project
-
-.settings/org.eclipse.jdt.core.prefs
-
-.externalToolBuilders/New_Builder.launch
+bin/
