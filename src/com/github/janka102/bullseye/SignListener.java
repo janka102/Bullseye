@@ -16,7 +16,7 @@ public class SignListener implements Listener {
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
-    //Called when a sign is created, and after the text is entered
+    // Called when a sign is created, and after the text is entered
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         if (signHandle.isBullseyeSign(event.getLine(0).trim(), false)) {
