@@ -9,25 +9,7 @@ public class BullseyeSignHandler {
     
     //Checks if the a block can even handle a redstone torch.
     public boolean isValidBlock(Block block) {
-        if(block == null) {
-            return false;
-        }
-                
-        Material blockType = block.getType();
-        String blockName = blockType.toString().toLowerCase();
-        
-        //blocks that don't work with redstone torches
-        if (blockType == Material.STEP
-        || blockType == Material.TNT
-        || blockType.toString().contains("STAIRS")
-        || blockType.toString().contains("GLASS")
-        || blockType == Material.IRON_FENCE
-        || blockType == Material.CACTUS
-        || blockType == Material.WEB
-        || blockType.toString().contains("PISTON")
-        || blockType == Material.GLOWSTONE
-        || blockType == Material.ENDER_PORTAL_FRAME)
-        {
+        if (block == null) {
             return false;
         }
         
