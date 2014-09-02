@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Bullseye extends JavaPlugin {
     FileConfiguration config;
     Boolean allowDispensers;
+    Boolean allowSkeletons;
     static Boolean blacklist;
     static List<String> blocks;
     
@@ -29,6 +30,7 @@ public class Bullseye extends JavaPlugin {
         blacklist = this.getConfig().getBoolean("blockList.blacklist");
         blocks = this.getConfig().getStringList("blockList.blocks");
         
+        allowSkeletons = config.getBoolean("allowSkeletons");
         logger.info("Bullseye enabled!");
     }
     

@@ -3,7 +3,14 @@
 # allowDispensers: true
 # 
 # Allow dispenser arrows to activate Bullseye signs.
-# If true, the message, if present, on lines 2-4 of the sign is not displayed.
+# If true, any message on lines 2-4 of the sign is not displayed.
+#
+# =============
+# allowSkeletons: false
+# 
+# Allow skeletons to activate Bullseye signs.
+# If true, any message on lines 2-4 of the sign is not displayed.
+#
 # =============
 # blockList:
 #   blacklist: true
@@ -24,6 +31,7 @@
 # =============
 
 allowDispensers: true
+allowSkeletons: false
 blockList:
   blacklist: true
   blocks:
