@@ -1,4 +1,5 @@
 # Defaults and Usage
+#
 # =============
 # allowDispensers: true
 # 
@@ -17,18 +18,14 @@
 #   blocks:
 #   - BEDROCK
 # 
-# blockList determines which blocks can/can't be used as a Bullseye block,
-# the block you put the Bullseye sign on.
+# blockList determines which blocks can/can't be used as a Bullseye block (the
+# block you put a Bullseye sign on).
 # 
-#   blacklist: true = use the list for disabled blocks, 
-#              false = makes it a whitelist, i.e., allows only those blocks 
-#                      listed to be used as Bullseye blocks.
+# > blacklist: true = exclude these blocks
+#              false = makes it a whitelist/allow ONLY these blocks
 # 
-#   blocks: a YML list of blocks to be used as a blacklist/whitelist.  Use bukkit
+# > blocks: list of blocks to be used as a blacklist/whitelist. Use Bukkit
 #           standard names.
-#               Check http://dev.bukkit.org/server-mods/bullseye/ for a list of
-#           permanently disabled blocks.
-# =============
 
 allowDispensers: true
 allowSkeletons: false
