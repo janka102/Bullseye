@@ -3,13 +3,12 @@ package com.github.janka102.bullseye;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BullLogger {
+public class BullseyeLogger {
     private Logger logger;
-    private String prefix;
+    private String prefix = "Bullseye";
 
-    public BullLogger(String prefix) {
+    public BullseyeLogger() {
         this.logger = Logger.getLogger("Minecraft");
-        this.prefix = prefix;
     }
 
     public void config(String msg) {
