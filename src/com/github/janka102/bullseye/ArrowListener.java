@@ -95,12 +95,16 @@ public class BullseyeListener implements Listener {
                     lines[0] = newLine;
                     signHandle.updateSign(bullseyeSign, lines);
                 }
-                
-                if(signHandle.isNearWater(bullseyeSign)) {
-                    //only send the message once, even if more than one sign is affected
-                    if (h2oSigns && p != null){
-                        p.sendMessage(ChatColor.RED + "Couldn't activate some Bullseye signs with water near them!");
-                        h2oSigns = false;
+
+                // Skip if it's next to water
+//                if (signUtils.isNearLiquid(bullseyeSignBlock)) {
+//                    // Only send the message once, even if more than one sign is affected
+//                    if (waterMessage && player != null) {
+//                        player.sendMessage(ChatColor.RED + "Couldn't activate some Bullseye signs with water near them!");
+//                        waterMessage = false;
+//                    }
+//                    continue;
+//                }
                     }
                     continue;
                 }
