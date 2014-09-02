@@ -1,183 +1,184 @@
 package com.github.janka102.bullseye;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
+import org.bukkit.metadata.FixedMetadataValue;
 
-public class BullseyeSignHandler {
-    
-    //Checks if the a block can even handle a redstone torch.
+public class SignUtils {
+    // Checks the block against the list in the config
     public boolean isValidBlock(Block block) {
         if (block == null) {
             return false;
         }
-        
-        //user defined list of blocks to either blacklist
+
+        String blockName = block.getType().toString().toUpperCase();
+
+        // Blocks to block from the config
         if (Bullseye.blacklist) {
-            if (Bullseye.blocks.toString().toLowerCase().contains(blockName)){
-                return false;
-            }
-            return true;
-        }
-        // or whitelist
-        else {
-            if (Bullseye.blocks.toString().toLowerCase().contains(blockName)){
-                return true;
-            }
-            return false;
+            return !Bullseye.blockList.contains(blockName);
+        } else {
+            return Bullseye.blockList.contains(blockName);
         }
     }
-    
-    public boolean isNearWater(Block sign) {
-        //get blocks to left, right, back, front and top of Block sign
-        for(int z = -1; z <= 1; z++) {
-            for(int x = -1; x <= 1; x++) {
-                for(int y = 0; y <= 1; y++) {
-                    if(x*x+y*y+z*z == 1) {
-                        Block relBlock = sign.getRelative(x, y, z);
-                        if(relBlock.getType() == Material.WATER || relBlock.getType() == Material.STATIONARY_WATER){
+
+    // Checks if sign is a Bullseye sign based on first line
+    public boolean isBullseyeSign(String line) {
+        return isBullseyeSign(line, true);
+    }
+
+    public boolean isBullseyeSign(String line, Boolean allColors) {
+        if (allColors) {
+            return line.matches("(?i)^(\u00a7[14r])?\\s*\\[(bullseye|bull|be)\\]$");
+        }
+
+        return line.matches("(?i)^\\[(bullseye|bull|be)\\]$");
+    }
+
+    public boolean isBullseyeSign(String line, ChatColor color) {
+        return line.matches("(?i)^" + color + "\\s*\\[(bullseye|bull|be)\\]$");
+    }
+
+    public boolean isBullseyeSign(String line, ChatColor color, Boolean includeRegular) {
+        if (includeRegular) {
+            return isBullseyeSign(line, color) || isBullseyeSign(line, false);
+        }
+
+        return isBullseyeSign(line, color);
+    }
+
+    public boolean isValidBullseyeSign(String line) {
+        return isBullseyeSign(line, ChatColor.DARK_BLUE, true);
+    }
+
+    public boolean isValidBullseyeSign(String line, Boolean includeRegular) {
+        return isBullseyeSign(line, ChatColor.DARK_BLUE, includeRegular);
+    }
+
+    public boolean isInvalidBullseyeSign(String line) {
+    	return isBullseyeSign(line, ChatColor.DARK_RED, true);
+    }
+
+    public boolean isInvalidBullseyeSign(String line, Boolean includeRegular) {
+        return isBullseyeSign(line, ChatColor.DARK_RED, includeRegular);
+    }
+
+    // Get Bullseye signs attached to a block
+    public List<Block> getBullseyeSigns(Block block) {
+        List<Block> signs = new ArrayList<Block>();
+
+        // Get blocks to the North, South, East, West, and Top of the hit block
+        for (int x = -1; x <= 1; x++) {
+            for (int y = 0; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    if (x*x+y*y+z*z == 1) {
+                        Block relativeBlock = block.getRelative(x, y, z);
+
+                        if (relativeBlock.getState() instanceof Sign) {
+                            Sign relativeSign = (Sign) relativeBlock.getState();
+
+                            // Checks to see if the sign next to the block hit is a Bullseye sign
+                            if (isBullseyeSign(relativeSign.getLine(0))) {
+                                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) relativeBlock.getState().getData();
+                                Block attachedBlock = relativeBlock.getRelative(sign.getAttachedFace());
+
+                                // Checks to make sure the sign is attached to the original block
+                                if (attachedBlock.equals(block)) {
+                                    signs.add(relativeBlock);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return signs;
+    }
+
+    // Updated a signs text
+    public void updateSign(Block signBlock, String[] signLines) {
+        Sign sign = (Sign) signBlock.getState();
+
+        for (int i = 0; i < signLines.length; i++) {
+            sign.setLine(i, signLines[i].toString());
+        }
+
+        sign.update(true);
+    }
+
+    // Checks if a block is next to a liquid
+    public boolean isNearLiquid(Block block) {
+        // Get blocks to the North, South, East, West, and Top of the sign
+        for (int x = -1; x <= 1; x++) {
+            for (int y = 0; y <= 1; y++) {
+                for (int z = -1; z <= 1; z++) {
+                    if (x*x+y*y+z*z == 1) {
+                        if (block.getRelative(x, y, z).isLiquid()){
                             return true;
                         }
                     }
                 }
             }
         }
-        return false;
-    }
-    
-    //checks to make sure the sign is a Bullseye sign
-    public boolean isBullseyeSign(String line) {
-        if(line.equalsIgnoreCase(("[bullseye]").toString())
-                || line.equalsIgnoreCase(("[bull]").toString())
-                || line.equalsIgnoreCase(("[be]").toString())) 
-        {
-            return true;
-        }
-        return false;
-    }
-    
-    public boolean isBullseyeSignBlue(String line) {
-        if(line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bullseye]").toString())
-                || line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[bull]").toString())
-                || line.equalsIgnoreCase((ChatColor.DARK_BLUE + "[be]").toString())) 
-        {
-            return true;
-        }
-        return false;
-    }
-    
-    public boolean isBullseyeSignRed(String line) {
-        if(line.equalsIgnoreCase((ChatColor.DARK_RED + "[bullseye]").toString())
-                || line.equalsIgnoreCase((ChatColor.DARK_RED + "[bull]").toString())
-                || line.equalsIgnoreCase((ChatColor.DARK_RED + "[be]").toString())) 
-        {
-            return true;
-        }
-        return false;
-    }
-    
-    
-    public Block[] getHitBlockSign(Block hit){
-        Block[] signs = new Block[5];
-        int numSigns = 0;
-        for(int z = -1; z <= 1; z++) {
-            for(int x = -1; x <= 1; x++) {
-                for(int y = 0; y <= 1; y++) {
-                    if(x*x+y*y+z*z == 1) {
-                        // get the block to the North, South, East, West, and Top of the block hit
-                        Block hitSign = hit.getRelative(x, y, z);
-                        
-                        if(hitSign.getState() instanceof Sign) {
-                            Sign hitSignSign = (Sign)hitSign.getState();
-                            
-                            //checks to see if the sign next to the block hit is a Bullseye sign
-                            if (isBullseyeSign(hitSignSign.getLine(0)) || isBullseyeSignBlue(hitSignSign.getLine(0)) || isBullseyeSignRed(hitSignSign.getLine(0))) {
-                                org.bukkit.material.Sign s = (org.bukkit.material.Sign) hitSign.getState().getData();
-                                Block attachedBlock = hitSign.getRelative(s.getAttachedFace());
-                                
-                                //checks to make sure the sign is attached to the block hit
-                                if(attachedBlock.equals(hit)) {
-                                    signs[numSigns] = hitSign;
-                                    numSigns++;
-                                  }
-                               }
-                        }
-                       }
-                   }
-              }
-           }
-        return signs;
-    }
-    
-    public void updateSign(Block signBlock, String[] signLines) {
-        Sign sign = (Sign)signBlock.getState();
-          for(int i = 0; i < signLines.length; i++) {
-             sign.setLine(i, signLines[i].toString());
-          }
-          sign.update(true);
-    }
-    
-    //changes the Bullseye sign to a redstone torch for a specified time
-    public void signToRestone(Bullseye plugin, final Sign bullseyeSign, final Block hitBlock, Material hitSignType, final Byte hitSignData, final boolean isPost) {
-        final String[] lines = bullseyeSign.getLines();
-        
-        if (isPost) {
-            hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(), (byte) 0x5,true);
-        }
-        else {
-            byte data = hitBlock.getData(); // Correspond to the direction of the wall sign
-            if (data == 0x2) { //South
-                hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x4, true);
-            }
-            else if (data == 0x3) { //North
-                hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x3, true);
-            }
-            else if (data == 0x4) { //East
-                hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x2, true);
-            }
-            else if (data == 0x5) { //West
-                hitBlock.setTypeIdAndData(Material.REDSTONE_TORCH_ON.getId(),(byte) 0x1, true);
-            }
-            else { // Not South, North, East or West 
-                Bullseye.getBullLogger().info("Strange Data!");
-                return;
-            }
-        }
 
-        //Run this after a delay of 25 ticks
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+        return false;
+    }
+
+    // Changes a Bullseye sign to a redstone torch for a specified time
+    public void signToRestone(final Bullseye plugin, final Block signBlock) {
+        BlockState signBlockState = signBlock.getState();
+        Sign bullseyeSign = (Sign) signBlockState;
+        org.bukkit.material.Sign materialSign = ((org.bukkit.material.Sign) bullseyeSign.getData());
+        final String[] lines = bullseyeSign.getLines();
+        final Material signType = signBlock.getType();
+        final BlockFace signFace = materialSign.getFacing();
+        BlockFace attachedFace = materialSign.getAttachedFace().getOppositeFace();
+
+        signBlock.setMetadata("BullseyeDoNotDestroy", new FixedMetadataValue(plugin, true));
+
+        // plugin.getLogger().info(signBlockState.getData().toString());
+        signBlockState.setType(Material.REDSTONE_TORCH_ON);
+        ((org.bukkit.material.RedstoneTorch) signBlockState.getData()).setFacingDirection(attachedFace);
+        signBlockState.update(true);
+        // plugin.getLogger().info(signBlockState.getData().toString());
+
+        // Run this after a delay of 25 ticks
+        int taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
             public void run() {
                 try {
-                    //clears the block
-                    hitBlock.setType(Material.AIR);
+                    BlockState signBlockState = signBlock.getState();
 
-                    if (isPost) {
-                        hitBlock.setType(Material.SIGN_POST);
-                        hitBlock.setTypeIdAndData(Material.SIGN_POST.getId(), hitSignData, true);
-                    }
-                    else {
-                        hitBlock.setType(Material.WALL_SIGN);
-                        hitBlock.setTypeIdAndData(Material.WALL_SIGN.getId(), hitSignData, true);
-                    }
+                    // Resets the block
+                    signBlockState.setType(signType);
+                    ((org.bukkit.material.Sign) signBlockState.getData()).setFacingDirection(signFace);
+                    signBlockState.update(true);
+                    // plugin.getLogger().info(signBlockState.getData().toString());
 
-                    Sign signtemp = (Sign) hitBlock.getState();
-                    
-                    //restore the original text of the Bullseye sign back
-                    for(int i = 0; i < lines.length; i++) {
-                        signtemp.setLine(i, lines[i]);
+                    Sign sign = (Sign) signBlock.getState();
+
+                    // Restore the original text of the Bullseye sign back
+                    for (int i = 0; i < lines.length; i++) {
+                        sign.setLine(i, lines[i]);
                     }
-                    signtemp.update(true);
-                                        
-                    //plugin.getServer().broadcastMessage(ChatColor.AQUA + "Changed sign back.");
+                    sign.update(true);
+
+                    signBlock.removeMetadata("BullseyeDoNotDestroy", plugin);
+                    signBlock.removeMetadata("BullseyeTaskId", plugin);
                 }
-                catch (RuntimeException e)
-                {
-                    Bullseye.getBullLogger().severe("Error while updating redstone signToRestone :" + e.getClass() + ":" + e.getMessage());
+                catch (RuntimeException e) {
+                    plugin.getLogger().severe("Error in signToRestone: " + e.getClass() + ": " + e.getMessage());
                     return;
                 }
             }
-        }, 25 );
+        }, 25);
+
+        signBlock.setMetadata("BullseyeTaskId", new FixedMetadataValue(plugin, taskId));
     }
-    
 }
