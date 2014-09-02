@@ -1,25 +1,21 @@
 package com.github.janka102.bullseye;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 
-public class BullseyeSignListener implements Listener {
-    public final BullseyeSignHandler signHandle = new BullseyeSignHandler();
+public class SignListener implements Listener {
+    public final SignUtils signHandle = new SignUtils();
     public final Bullseye plugin;
-    private Material blockType;
-    private Block signBlock;
 
-    public BullseyeSignListener(Bullseye b_plugin) {
-        plugin = b_plugin;
+    public SignListener(Bullseye bullseye) {
+        plugin = bullseye;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
-    
+
     //Called when a sign is created, and after the text is entered
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
