@@ -56,30 +56,11 @@ public class BullseyeListener implements Listener {
         
         //make sure the check skips blocks arrows can go through
         while(bi.hasNext()) {
-            hit = bi.next();
-            type = hit.getType();
-            if(type != Material.AIR
-            && type != Material.WATER
-              && type != Material.STATIONARY_WATER
-              && type != Material.LAVA
-             && type != Material.STATIONARY_LAVA
-              && type != Material.LONG_GRASS
-               && type != Material.REDSTONE_WIRE
-            && type != Material.SAPLING
-            && type != Material.WEB
-            && type != Material.YELLOW_FLOWER
-            && type != Material.RED_ROSE
-            && type != Material.DIODE_BLOCK_OFF
-            && type != Material.DIODE_BLOCK_ON
-            && !type.toString().contains("TRIPWIRE") //for 1.3.1
-            && type != Material.REDSTONE_TORCH_ON
-            && type != Material.REDSTONE_TORCH_OFF
-            && type != Material.TORCH
-            && type != Material.VINE
-            && type != Material.RAILS
-            && type != Material.DETECTOR_RAIL
-            && type != Material.POWERED_RAIL)
-            {
+            hitBlock = bi.next();
+            type = hitBlock.getType();
+
+            // Skip blocks arrows can go through
+            if (type.isSolid()) {
                 break;
             }
         }
