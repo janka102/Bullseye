@@ -90,7 +90,7 @@ public class ArrowListener implements Listener {
         ListIterator<Block> iterator = hitBlockSigns.listIterator();
 
         if (signUtils.isValidBlock(hitBlock)) {
-            boolean waterMessage = true;
+//            boolean waterMessage = true;
 
             while (iterator.hasNext()) {
                 Block bullseyeSignBlock = iterator.next();
