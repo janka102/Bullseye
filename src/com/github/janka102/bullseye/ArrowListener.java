@@ -1,13 +1,14 @@
 package com.github.janka102.bullseye;
 
+import java.util.List;
+import java.util.ListIterator;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
@@ -15,24 +16,26 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.util.BlockIterator;
 
-public class BullseyeListener implements Listener {
-    public final BullseyeSignHandler signHandle = new BullseyeSignHandler();
+public class ArrowListener implements Listener {
+    public final SignUtils signUtils = new SignUtils();
     public final Bullseye plugin;
-    
-    public BullseyeListener(Bullseye b_plugin) {
-        plugin = b_plugin;
+
+    public ArrowListener(Bullseye bullseye) {
+        plugin = bullseye;
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
-    public void onProjectileHit(ProjectileHitEvent event) {
-        Player p = null;
+    public void onArrowHit(ProjectileHitEvent event) {
         Entity projectile = event.getEntity();
+
+        // Only want arrows
         if(!(projectile instanceof Arrow)) {
              return;
         }
 
-        Arrow arrow = (Arrow)projectile;
+        Player player = null;
+        Arrow arrow = (Arrow) projectile;
         Entity entity = arrow.getShooter();
 
         if (entity instanceof Player) {
@@ -48,13 +51,17 @@ public class BullseyeListener implements Listener {
             return;
         }
 
-        World world = arrow.getWorld();
-        
-        BlockIterator bi = new BlockIterator(world, arrow.getLocation().toVector(), arrow.getVelocity().normalize(), 0, 4);
-        Block hit = null;
+        // Creates an iterator of blocks in a line in direction of arrow
+        BlockIterator bi = new BlockIterator(
+            arrow.getWorld(),
+            arrow.getLocation().toVector(),
+            arrow.getVelocity().normalize(),
+            0,
+            3
+        );
+        Block hitBlock = null;
         Material type = null;
-        
-        //make sure the check skips blocks arrows can go through
+
         while(bi.hasNext()) {
             hitBlock = bi.next();
             type = hitBlock.getType();
@@ -64,36 +71,36 @@ public class BullseyeListener implements Listener {
                 break;
             }
         }
-        
-        //if the block hit is a Bullseye sign, set hit to the attached block
-        if (type.toString().contains("SIGN")) {
-            String signLine = ((Sign)hit.getState()).getLine(0);
-            
-            if (signHandle.isBullseyeSign(signLine) || signHandle.isBullseyeSignBlue(signLine) || signHandle.isBullseyeSignRed(signLine)) {
-                
-                org.bukkit.material.Sign s = (org.bukkit.material.Sign) hit.getState().getData();
-                Block attachedBlock = hit.getRelative(s.getAttachedFace());
-                hit = attachedBlock;
-            }
+
+        // If it ran to the end of the iterator, there is not a block here
+        if (!bi.hasNext()) {
+            return;
         }
-            
-        if(signHandle.isValidBlock(hit)) {
-            //get all bullseye signs attched to the hit block and change them to a redstone torch
-            Block[] hitBlockSign = signHandle.getHitBlockSign(hit);
-            boolean h2oSigns = true;
-            for (Block bullseyeSign : hitBlockSign) {
-                if (bullseyeSign == null) {
-                    continue;
-                }
-                Sign hitSignSign = (Sign) bullseyeSign.getState();
-                
-                if (signHandle.isBullseyeSignRed(hitSignSign.getLine(0)) || signHandle.isBullseyeSign(hitSignSign.getLine(0))) {
-                    
-                    String newLine = hitSignSign.getLine(0).replace(ChatColor.DARK_RED.toString(), "");
-                    newLine = ChatColor.DARK_BLUE.toString() + newLine;
-                    String[] lines = hitSignSign.getLines();
-                    lines[0] = newLine;
-                    signHandle.updateSign(bullseyeSign, lines);
+
+        // If hitBlock is a sign, set hitBlock to the attached block
+        if (type == Material.WALL_SIGN || type == Material.SIGN_POST) {
+            org.bukkit.material.Sign sign = (org.bukkit.material.Sign) hitBlock.getState().getData();
+            hitBlock = hitBlock.getRelative(sign.getAttachedFace());
+        }
+
+        // plugin.getLogger().info(hitBlock.getType().toString());
+
+        // Get all Bullseye signs attached to block and change them to rs torch
+        List<Block> hitBlockSigns = signUtils.getBullseyeSigns(hitBlock);
+        ListIterator<Block> iterator = hitBlockSigns.listIterator();
+
+        if (signUtils.isValidBlock(hitBlock)) {
+            boolean waterMessage = true;
+
+            while (iterator.hasNext()) {
+                Block bullseyeSignBlock = iterator.next();
+                Sign bullseyeSign = (Sign) bullseyeSignBlock.getState();
+                String[] lines = bullseyeSign.getLines();
+
+                // If it was invalid, make it now valid
+                if (signUtils.isInvalidBullseyeSign(lines[0])) {
+                    lines[0] = ChatColor.DARK_BLUE.toString() + lines[0].trim().replace(ChatColor.DARK_RED.toString(), "");
+                    signUtils.updateSign(bullseyeSignBlock, lines);
                 }
 
                 // Skip if it's next to water
@@ -105,46 +112,30 @@ public class BullseyeListener implements Listener {
 //                    }
 //                    continue;
 //                }
+
+                // Displays any message on the sign
+                if (player != null) {
+                    String message = bullseyeSign.getLine(1) + bullseyeSign.getLine(2) + bullseyeSign.getLine(3);
+
+                    if (message.trim().length() > 0) {
+                        player.sendMessage("Bullseye! " + message);
                     }
-                    continue;
                 }
-                
-                //checks if there is a message the player wants shown on hit
-                if(p != null &&
-                        (hitSignSign.getLine(1).trim().length() >= 1
-                            || hitSignSign.getLine(2).trim().length() >= 1
-                            || hitSignSign.getLine(3).trim().length() >= 1)) {
-                    p.sendMessage("Bullseye! You hit " + hitSignSign.getLine(1) + hitSignSign.getLine(2) + hitSignSign.getLine(3) +"!");
-                }
-                
-                if (bullseyeSign.getType() == Material.SIGN_POST) {
-                    //change the sign to a redstone torch as SIGN_POST
-                    signHandle.signToRestone(plugin, hitSignSign, bullseyeSign, bullseyeSign.getType(), bullseyeSign.getData(), true);    
-                }
-                else if (bullseyeSign.getType() == Material.WALL_SIGN) {
-                    //change the sign to a redstone torch as WALL_SIGN
-                    signHandle.signToRestone(plugin, hitSignSign, bullseyeSign, bullseyeSign.getType(), bullseyeSign.getData(), false);
-                }
+
+                signUtils.signToRestone(plugin, bullseyeSignBlock);
             }
-        }
-        else {
-            Block[] hitBlockSign = signHandle.getHitBlockSign(hit);
-            for (Block bullseyeSign : hitBlockSign) {
-                if (bullseyeSign == null) {
-                    continue;
-                }
-                Sign bullSign = (Sign)bullseyeSign.getState();
-                
-                if (signHandle.isBullseyeSignBlue(bullSign.getLine(0)) || signHandle.isBullseyeSign(bullSign.getLine(0))) {
-                    
-                    String newLine = bullSign.getLine(0).replace(ChatColor.DARK_BLUE.toString(), "");
-                    newLine = ChatColor.DARK_RED.toString() + newLine;
-                    String[] lines = bullSign.getLines();
-                    lines[0] = newLine;
-                    signHandle.updateSign(bullseyeSign, lines);
+        } else {
+            while (iterator.hasNext()) {
+                Block bullseyeSignBlock = iterator.next();
+                Sign bullseyeSign = (Sign) bullseyeSignBlock.getState();
+                String[] lines = bullseyeSign.getLines();
+
+                // If it was valid, make it now invalid
+                if (signUtils.isValidBullseyeSign(lines[0])) {
+                    lines[0] = ChatColor.DARK_RED.toString() + lines[0].trim().replace(ChatColor.DARK_BLUE.toString(), "");
+                    signUtils.updateSign(bullseyeSignBlock, lines);
                 }
             }
         }
     }
-
 }
