@@ -1,6 +1,7 @@
 package com.github.janka102.bullseye;
 
 import java.util.List;
+import java.util.ListIterator;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -10,26 +11,21 @@ public class Bullseye extends JavaPlugin {
     Boolean allowDispensers;
     Boolean allowSkeletons;
     static Boolean blacklist;
-    static List<String> blocks;
-    
-    public static BullLogger logger = new BullLogger("Bullseye");
-    public static BullLogger getBullLogger() {
-        return logger;
-    }
-    
+    static List<String> blockList;
+
+    private BullseyeLogger logger = new BullseyeLogger();
+
     @Override
     public void onEnable() {
-        new BullseyeListener(this);
-        new BullseyeSignListener(this);        
-        
+        new ArrowListener(this);
+        new RedStoneTorchListener(this);
+        new SignListener(this);
+
         this.getConfig().options().copyDefaults(true);
         this.saveConfig();
         config = this.getConfig();
-        
-        allowDispensers = this.getConfig().getBoolean("allowDispensers");
-        blacklist = this.getConfig().getBoolean("blockList.blacklist");
-        blocks = this.getConfig().getStringList("blockList.blocks");
-        
+
+        allowDispensers = config.getBoolean("allowDispensers");
         allowSkeletons = config.getBoolean("allowSkeletons");
         blacklist = config.getBoolean("blockList.blacklist");
         blockList = config.getStringList("blockList.blocks");
@@ -41,10 +37,9 @@ public class Bullseye extends JavaPlugin {
 
         logger.info("Bullseye enabled!");
     }
-    
+
     @Override
     public void onDisable() {
         logger.info("Bullseye disabled!");
     }
-
 }
