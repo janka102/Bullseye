@@ -34,16 +34,17 @@ public class BullseyeListener implements Listener {
 
         Arrow arrow = (Arrow)projectile;
         Entity entity = arrow.getShooter();
-        
-        if (entity instanceof Skeleton) {
-            //Don't allow skeletons to activate the signs
-            return;
-        }
-        else if(entity instanceof Player) {
-            p = (Player)entity;
-        }
-        else if (!(arrow.getShooter() instanceof LivingEntity) && !plugin.allowDispensers) {
-            //Dispenser, but disabled in config.yml
+
+        if (entity instanceof Player) {
+            player = (Player) entity;
+        } else if (entity instanceof Skeleton) {
+            // Only allow Skeletons if it's true in config.yml
+            if (!plugin.allowSkeletons) {
+                return;
+            }
+        } else if (!plugin.allowDispensers) {
+        	// Must be a Dispenser
+            // Only allow if it's true in config.yml
             return;
         }
 
