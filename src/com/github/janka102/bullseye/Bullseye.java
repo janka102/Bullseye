@@ -31,6 +31,14 @@ public class Bullseye extends JavaPlugin {
         blocks = this.getConfig().getStringList("blockList.blocks");
         
         allowSkeletons = config.getBoolean("allowSkeletons");
+        blacklist = config.getBoolean("blockList.blacklist");
+        blockList = config.getStringList("blockList.blocks");
+
+        ListIterator<String> iterator = blockList.listIterator();
+        while (iterator.hasNext()) {
+            iterator.set(iterator.next().toUpperCase());
+        }
+
         logger.info("Bullseye enabled!");
     }
     
