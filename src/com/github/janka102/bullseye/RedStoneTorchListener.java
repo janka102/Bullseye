@@ -42,11 +42,10 @@ public class RedStoneTorchListener implements Listener {
     public void onRedstoneTorchBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
 
-        if (block.getType() == Material.REDSTONE_TORCH_ON) {
-            if (block.hasMetadata("BullseyeDoNotDestroy")) {
-                // plugin.getLogger().info(event.getPlayer() + " tried to break " + block);
-                event.setCancelled(true);
-            }
+        if (block.getType() == Material.REDSTONE_TORCH_ON
+            && block.hasMetadata("BullseyeDoNotDestroy")) {
+            // plugin.getLogger().info(event.getPlayer() + " tried to break " + block);
+            event.setCancelled(true);
         }
     }
 
@@ -54,11 +53,10 @@ public class RedStoneTorchListener implements Listener {
     public void onRedstoneTorchReplace(BlockFromToEvent event) {
         Block block = event.getToBlock();
 
-        if (block.getType() == Material.REDSTONE_TORCH_ON) {
-            if (block.hasMetadata("BullseyeDoNotDestroy")) {
-                // plugin.getLogger().info(event.getBlock().getType() + " tried to flow to " + block.toString());
-                event.setCancelled(true);
-            }
+        if (block.getType() == Material.REDSTONE_TORCH_ON
+            && block.hasMetadata("BullseyeDoNotDestroy")) {
+            // plugin.getLogger().info(event.getBlock().getType() + " tried to flow to " + block.toString());
+            event.setCancelled(true);
         }
     }
 
@@ -70,23 +68,22 @@ public class RedStoneTorchListener implements Listener {
         while (iterator.hasNext()) {
             Block block = iterator.next();
 
-            if (block.getType() == Material.REDSTONE_TORCH_ON) {
-                if (block.hasMetadata("BullseyeDoNotDestroy")) {
-                    // plugin.getLogger().info(event.getEntityType() + " exploded " + block.toString());
-                    // If it drops, drop a sign instead of a redstone torch
-                    block.setType(Material.SIGN_POST);
+            if (block.getType() == Material.REDSTONE_TORCH_ON
+                && block.hasMetadata("BullseyeDoNotDestroy")) {
+                // plugin.getLogger().info(event.getEntityType() + " exploded " + block.toString());
+                // If it drops, drop a sign instead of a redstone torch
+                block.setType(Material.SIGN_POST);
 
-                    ListIterator<MetadataValue> metadata = block.getMetadata("BullseyeTaskId").listIterator();
+                ListIterator<MetadataValue> metadata = block.getMetadata("BullseyeTaskId").listIterator();
 
-                    while (metadata.hasNext()) {
-                        MetadataValue meta = metadata.next();
-                        if (meta.getOwningPlugin().equals(plugin)) {
-                            if (meta.asInt() != -1 && plugin.getServer().getScheduler().isQueued(meta.asInt())) {
-                                // plugin.getLogger().info("Canceled task: " + meta.asInt());
-                                plugin.getServer().getScheduler().cancelTask(meta.asInt());
-                            }
-                            break;
+                while (metadata.hasNext()) {
+                    MetadataValue meta = metadata.next();
+                    if (meta.getOwningPlugin().equals(plugin)) {
+                        if (meta.asInt() != -1 && plugin.getServer().getScheduler().isQueued(meta.asInt())) {
+                            // plugin.getLogger().info("Canceled task: " + meta.asInt());
+                            plugin.getServer().getScheduler().cancelTask(meta.asInt());
                         }
+                        break;
                     }
                 }
             }
