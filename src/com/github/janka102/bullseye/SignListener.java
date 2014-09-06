@@ -20,13 +20,13 @@ public class SignListener implements Listener {
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         if (signHandle.isBullseyeSign(event.getLine(0).trim(), false)) {
-             //get the attached block
-              Block eventSign = event.getBlock();
-              BlockState signState = eventSign.getState();
-              org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signState.getData();
-              Block attachedBlock = eventSign.getRelative(sign.getAttachedFace());
+            //get the attached block
+            Block eventSign = event.getBlock();
+            BlockState signState = eventSign.getState();
+            org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signState.getData();
+            Block attachedBlock = eventSign.getRelative(sign.getAttachedFace());
 
-              if (signHandle.isValidBlock(attachedBlock)) {
+            if (signHandle.isValidBlock(attachedBlock)) {
                 event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0).trim());
                 signState.update(true);
 
