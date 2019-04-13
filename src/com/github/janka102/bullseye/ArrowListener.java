@@ -9,7 +9,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -27,20 +30,18 @@ public class ArrowListener implements Listener {
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
-        Entity projectile = event.getEntity();
-
         // Only want arrows
-        if(!(projectile instanceof Arrow)) {
-             return;
+        if (event.getEntityType() != EntityType.ARROW) {
+            return;
         }
 
         Player player = null;
-        Arrow arrow = (Arrow) projectile;
-        Entity entity = arrow.getShooter();
+        Projectile arrow = event.getEntity();
+        ProjectileSource shooter = arrow.getShooter();
 
-        if (entity instanceof Player) {
-            player = (Player) entity;
-        } else if (entity instanceof Skeleton) {
+        if (shooter instanceof Player) {
+            player = (Player) shooter;
+        } else if (shooter instanceof Skeleton) {
             // Only allow Skeletons if it's true in config.yml
             if (!plugin.allowSkeletons) {
                 return;

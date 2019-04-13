@@ -1,6 +1,6 @@
 <project name="Bullseye" default="build" basedir=".">
     <property name="pluginname" value="Bullseye"/>
-    <property name="bukkit.jar" location="lib/bukkit.jar"/>
+    <property name="spigot-api.jar" location="lib/spigot-api.jar"/>
     <property name="plugins" location="../server/plugins/"/>
 
     <property name="src" location="src"/>
@@ -11,7 +11,7 @@
         <mkdir dir="${bin}"/>
         <javac srcdir="${src}" destdir="${bin}" includeantruntime="false">
             <classpath>
-                <pathelement location="${bukkit.jar}"/>
+                <pathelement location="${spigot-api.jar}"/>
             </classpath>
         </javac>
     </target>
