@@ -62,7 +62,7 @@ public class SignUtils {
     }
 
     public boolean isInvalidBullseyeSign(String line) {
-    	return isBullseyeSign(line, ChatColor.DARK_RED, true);
+        return isBullseyeSign(line, ChatColor.DARK_RED, true);
     }
 
     public boolean isInvalidBullseyeSign(String line, Boolean includeRegular) {
@@ -77,7 +77,7 @@ public class SignUtils {
         for (int x = -1; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
-                    if (x*x+y*y+z*z == 1) {
+                    if (x * x + y * y + z * z == 1) {
                         Block relativeBlock = block.getRelative(x, y, z);
 
                         if (relativeBlock.getState() instanceof Sign) {
@@ -85,7 +85,8 @@ public class SignUtils {
 
                             // Checks to see if the sign next to the block hit is a Bullseye sign
                             if (isBullseyeSign(relativeSign.getLine(0))) {
-                                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) relativeBlock.getState().getData();
+                                org.bukkit.material.Sign sign = (org.bukkit.material.Sign) relativeBlock.getState()
+                                        .getData();
                                 Block attachedBlock = relativeBlock.getRelative(sign.getAttachedFace());
 
                                 // Checks to make sure the sign is attached to the original block
@@ -119,8 +120,8 @@ public class SignUtils {
         for (int x = -1; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
-                    if (x*x+y*y+z*z == 1) {
-                        if (block.getRelative(x, y, z).isLiquid()){
+                    if (x * x + y * y + z * z == 1) {
+                        if (block.getRelative(x, y, z).isLiquid()) {
                             return true;
                         }
                     }
@@ -171,8 +172,7 @@ public class SignUtils {
 
                     signBlock.removeMetadata("BullseyeDoNotDestroy", plugin);
                     signBlock.removeMetadata("BullseyeTaskId", plugin);
-                }
-                catch (RuntimeException e) {
+                } catch (RuntimeException e) {
                     plugin.getLogger().severe("Error in signToRestone: " + e.getClass() + ": " + e.getMessage());
                     return;
                 }

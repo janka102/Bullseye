@@ -7,8 +7,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.projectiles.ProjectileSource;
 import org.bukkit.entity.Player;
@@ -47,23 +45,18 @@ public class ArrowListener implements Listener {
                 return;
             }
         } else if (!plugin.allowDispensers) {
-        	// Must be a Dispenser
+            // Must be a Dispenser
             // Only allow if it's true in config.yml
             return;
         }
 
         // Creates an iterator of blocks in a line in direction of arrow
-        BlockIterator bi = new BlockIterator(
-            arrow.getWorld(),
-            arrow.getLocation().toVector(),
-            arrow.getVelocity().normalize(),
-            0,
-            3
-        );
+        BlockIterator bi = new BlockIterator(arrow.getWorld(), arrow.getLocation().toVector(),
+                arrow.getVelocity().normalize(), 0, 3);
         Block hitBlock = null;
         Material type = null;
 
-        while(bi.hasNext()) {
+        while (bi.hasNext()) {
             hitBlock = bi.next();
             type = hitBlock.getType();
 
@@ -91,7 +84,7 @@ public class ArrowListener implements Listener {
         ListIterator<Block> iterator = hitBlockSigns.listIterator();
 
         if (signUtils.isValidBlock(hitBlock)) {
-//            boolean waterMessage = true;
+            // boolean waterMessage = true;
 
             while (iterator.hasNext()) {
                 Block bullseyeSignBlock = iterator.next();
@@ -100,19 +93,21 @@ public class ArrowListener implements Listener {
 
                 // If it was invalid, make it now valid
                 if (signUtils.isInvalidBullseyeSign(lines[0])) {
-                    lines[0] = ChatColor.DARK_BLUE.toString() + lines[0].trim().replace(ChatColor.DARK_RED.toString(), "");
+                    lines[0] = ChatColor.DARK_BLUE.toString()
+                            + lines[0].trim().replace(ChatColor.DARK_RED.toString(), "");
                     signUtils.updateSign(bullseyeSignBlock, lines);
                 }
 
                 // Skip if it's next to water
-//                if (signUtils.isNearLiquid(bullseyeSignBlock)) {
-//                    // Only send the message once, even if more than one sign is affected
-//                    if (waterMessage && player != null) {
-//                        player.sendMessage(ChatColor.RED + "Couldn't activate some Bullseye signs with water near them!");
-//                        waterMessage = false;
-//                    }
-//                    continue;
-//                }
+                // if (signUtils.isNearLiquid(bullseyeSignBlock)) {
+                // // Only send the message once, even if more than one sign is affected
+                // if (waterMessage && player != null) {
+                // player.sendMessage(ChatColor.RED + "Couldn't activate some Bullseye signs
+                // with water near them!");
+                // waterMessage = false;
+                // }
+                // continue;
+                // }
 
                 // Displays any message on the sign
                 if (player != null) {
@@ -133,7 +128,8 @@ public class ArrowListener implements Listener {
 
                 // If it was valid, make it now invalid
                 if (signUtils.isValidBullseyeSign(lines[0])) {
-                    lines[0] = ChatColor.DARK_RED.toString() + lines[0].trim().replace(ChatColor.DARK_BLUE.toString(), "");
+                    lines[0] = ChatColor.DARK_RED.toString()
+                            + lines[0].trim().replace(ChatColor.DARK_BLUE.toString(), "");
                     signUtils.updateSign(bullseyeSignBlock, lines);
                 }
             }

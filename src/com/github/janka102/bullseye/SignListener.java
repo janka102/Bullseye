@@ -20,7 +20,7 @@ public class SignListener implements Listener {
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         if (signHandle.isBullseyeSign(event.getLine(0).trim(), false)) {
-            //get the attached block
+            // get the attached block
             Block eventSign = event.getBlock();
             BlockState signState = eventSign.getState();
             org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signState.getData();
@@ -30,7 +30,7 @@ public class SignListener implements Listener {
                 event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0).trim());
                 signState.update(true);
 
-                 event.getPlayer().sendMessage(ChatColor.GREEN + "New Bullseye sign created!");
+                event.getPlayer().sendMessage(ChatColor.GREEN + "New Bullseye sign created!");
             } else {
                 event.setLine(0, ChatColor.DARK_RED + event.getLine(0).trim());
                 event.getBlock().getState().update(true);

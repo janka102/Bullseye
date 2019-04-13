@@ -27,9 +27,7 @@ public class RedStoneTorchListener implements Listener {
         Block block = event.getBlock();
         Material type = block.getType();
 
-        if (type == Material.REDSTONE_TORCH_ON
-            || type == Material.WALL_SIGN
-            || type == Material.SIGN_POST) {
+        if (type == Material.REDSTONE_TORCH_ON || type == Material.WALL_SIGN || type == Material.SIGN_POST) {
 
             if (block.hasMetadata("BullseyeDoNotDestroy")) {
                 // plugin.getLogger().info(block + " tried to pop off");
@@ -42,8 +40,7 @@ public class RedStoneTorchListener implements Listener {
     public void onRedstoneTorchBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
 
-        if (block.getType() == Material.REDSTONE_TORCH_ON
-            && block.hasMetadata("BullseyeDoNotDestroy")) {
+        if (block.getType() == Material.REDSTONE_TORCH_ON && block.hasMetadata("BullseyeDoNotDestroy")) {
             // plugin.getLogger().info(event.getPlayer() + " tried to break " + block);
             event.setCancelled(true);
         }
@@ -53,9 +50,9 @@ public class RedStoneTorchListener implements Listener {
     public void onRedstoneTorchReplace(BlockFromToEvent event) {
         Block block = event.getToBlock();
 
-        if (block.getType() == Material.REDSTONE_TORCH_ON
-            && block.hasMetadata("BullseyeDoNotDestroy")) {
-            // plugin.getLogger().info(event.getBlock().getType() + " tried to flow to " + block.toString());
+        if (block.getType() == Material.REDSTONE_TORCH_ON && block.hasMetadata("BullseyeDoNotDestroy")) {
+            // plugin.getLogger().info(event.getBlock().getType() + " tried to flow to " +
+            // block.toString());
             event.setCancelled(true);
         }
     }
@@ -68,9 +65,9 @@ public class RedStoneTorchListener implements Listener {
         while (iterator.hasNext()) {
             Block block = iterator.next();
 
-            if (block.getType() == Material.REDSTONE_TORCH_ON
-                && block.hasMetadata("BullseyeDoNotDestroy")) {
-                // plugin.getLogger().info(event.getEntityType() + " exploded " + block.toString());
+            if (block.getType() == Material.REDSTONE_TORCH_ON && block.hasMetadata("BullseyeDoNotDestroy")) {
+                // plugin.getLogger().info(event.getEntityType() + " exploded " +
+                // block.toString());
                 // If it drops, drop a sign instead of a redstone torch
                 block.setType(Material.SIGN_POST);
 
