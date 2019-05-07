@@ -1,5 +1,4 @@
 .DS_Store
-/bin
-/build
-/lib/bukkit-*.jar
-/lib/spigot-api-*.jar
+/bin/
+/build/
+/lib/
