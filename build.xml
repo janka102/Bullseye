@@ -1,7 +1,7 @@
 <project name="Bullseye" default="build" basedir=".">
     <property name="pluginname" value="Bullseye"/>
     <property name="spigot-api.jar" location="lib/spigot-api.jar"/>
-    <property name="plugins" location="../server/plugins/"/>
+    <property name="plugins" location="server/plugins/"/>
 
     <property name="src" location="src"/>
     <property name="bin" location="bin"/>
@@ -20,12 +20,13 @@
         <mkdir dir="${build}"/>
         <jar jarfile="${build}/${pluginname}.jar">
             <fileset dir="${bin}"/>
-            <fileset file="plugin.yml"/>
-            <fileset file="config.yml"/>
+            <fileset file="src/plugin.yml"/>
+            <fileset file="src/config.yml"/>
         </jar>
     </target>
     
     <target name="deploy" depends="build">
+        <mkdir dir="${plugins}"/>
         <copy file="${build}/${pluginname}.jar" todir="${plugins}"/>
     </target>
     

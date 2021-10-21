@@ -8,32 +8,40 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 
 public class SignListener implements Listener {
-    public final SignUtils signHandle = new SignUtils();
+    public final SignUtils signUtils;
     public final Bullseye plugin;
 
     public SignListener(Bullseye bullseye) {
         plugin = bullseye;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        signUtils = new SignUtils(bullseye);
     }
 
     // Called when a sign is created, and after the text is entered
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
-        if (signHandle.isBullseyeSign(event.getLine(0).trim(), false)) {
+        String firstLine = event.getLine(0);
+
+        if (firstLine == null) {
+            return;
+        }
+
+        firstLine = firstLine.trim();
+
+        if (signUtils.isBullseyeSign(firstLine, false)) {
             // get the attached block
             Block eventSign = event.getBlock();
             BlockState signState = eventSign.getState();
             org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signState.getData();
             Block attachedBlock = eventSign.getRelative(sign.getAttachedFace());
 
-            if (signHandle.isValidBlock(attachedBlock)) {
-                event.setLine(0, ChatColor.DARK_BLUE + event.getLine(0).trim());
+            if (signUtils.isValidBlock(attachedBlock)) {
+                event.setLine(0, ChatColor.DARK_BLUE + firstLine);
                 signState.update(true);
 
                 event.getPlayer().sendMessage(ChatColor.GREEN + "New Bullseye sign created!");
             } else {
-                event.setLine(0, ChatColor.DARK_RED + event.getLine(0).trim());
-                event.getBlock().getState().update(true);
+                event.setLine(0, ChatColor.DARK_RED + firstLine);
+                signState.update(true);
             }
         }
     }

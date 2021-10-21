@@ -14,22 +14,20 @@
 #
 # =============
 # blockList:
-#   blacklist: true
+#   type: deny
 #   blocks:
 #   - BEDROCK
 # 
-# blockList determines which blocks can/can't be used as a Bullseye block (the
-# block you put a Bullseye sign on).
+# blockList determines which blocks can/can't be used as a Bullseye block (the block you put a Bullseye sign on).
 # 
-# > blacklist: true = exclude these blocks
-#              false = makes it a whitelist/allow ONLY these blocks
+# > type: deny  = allow all blocks EXCEPT these blocks
+#         allow = allow ONLY these blocks
 # 
-# > blocks: list of blocks to be used as a blacklist/whitelist. Use Bukkit
-#           standard names.
+# > blocks: list of block names. Use Bukkit standard names. https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
 
 allowDispensers: true
 allowSkeletons: false
 blockList:
-  blacklist: true
+  type: deny
   blocks:
   - BEDROCK

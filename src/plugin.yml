@@ -1,0 +1,6 @@
+main: com.github.janka102.bullseye.Bullseye
+name: Bullseye
+version: 0.9.0
+author: janka102
+description: This makes a block detect an arrow with a Bullseye sign, then changes that sign into a redstone torch briefly.
+api-version: 1.13

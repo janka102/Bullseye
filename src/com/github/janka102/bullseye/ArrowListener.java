@@ -1,87 +1,59 @@
 package com.github.janka102.bullseye;
 
-import java.util.List;
-import java.util.ListIterator;
-
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.EntityType;
-import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.util.BlockIterator;
+import org.bukkit.projectiles.BlockProjectileSource;
+import org.bukkit.projectiles.ProjectileSource;
+
+import java.util.List;
+import java.util.ListIterator;
 
 public class ArrowListener implements Listener {
-    public final SignUtils signUtils = new SignUtils();
+    public final SignUtils signUtils;
     public final Bullseye plugin;
 
     public ArrowListener(Bullseye bullseye) {
         plugin = bullseye;
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
+        signUtils = new SignUtils(bullseye);
     }
 
     @EventHandler
     public void onArrowHit(ProjectileHitEvent event) {
-        // Only want arrows
-        if (event.getEntityType() != EntityType.ARROW) {
+        Projectile arrow = event.getEntity();
+        Block hitBlock = event.getHitBlock();
+
+        // Only want arrows that hit blocks
+        if (!(arrow instanceof Arrow) || hitBlock == null) {
             return;
         }
 
         Player player = null;
-        Projectile arrow = event.getEntity();
         ProjectileSource shooter = arrow.getShooter();
 
         if (shooter instanceof Player) {
             player = (Player) shooter;
-        } else if (shooter instanceof Skeleton) {
-            // Only allow Skeletons if it's true in config.yml
-            if (!plugin.allowSkeletons) {
-                return;
-            }
-        } else if (!plugin.allowDispensers) {
-            // Must be a Dispenser
-            // Only allow if it's true in config.yml
+        } else if (
+            !(shooter instanceof Skeleton && plugin.allowSkeletons) &&
+            !(shooter instanceof BlockProjectileSource && plugin.allowDispensers)
+        ) {
             return;
         }
 
-        // Creates an iterator of blocks in a line in direction of arrow
-        BlockIterator bi = new BlockIterator(arrow.getWorld(), arrow.getLocation().toVector(),
-                arrow.getVelocity().normalize(), 0, 3);
-        Block hitBlock = null;
-        Material type = null;
-
-        while (bi.hasNext()) {
-            hitBlock = bi.next();
-            type = hitBlock.getType();
-
-            // Skip blocks arrows can go through
-            if (type.isSolid()) {
-                break;
-            }
-        }
-
-        // If it ran to the end of the iterator, there is not a block here
-        if (!bi.hasNext()) {
-            return;
-        }
-
-        // If hitBlock is a sign, set hitBlock to the attached block
-        if (type == Material.WALL_SIGN || type == Material.SIGN_POST) {
-            org.bukkit.material.Sign sign = (org.bukkit.material.Sign) hitBlock.getState().getData();
-            hitBlock = hitBlock.getRelative(sign.getAttachedFace());
-        }
-
-        // plugin.getLogger().info(hitBlock.getType().toString());
+         // plugin.log.info(hitBlock.toString());
 
         // Get all Bullseye signs attached to block and change them to rs torch
         List<Block> hitBlockSigns = signUtils.getBullseyeSigns(hitBlock);
         ListIterator<Block> iterator = hitBlockSigns.listIterator();
+
+        // plugin.log.info("Found " + hitBlockSigns.size());
 
         if (signUtils.isValidBlock(hitBlock)) {
             // boolean waterMessage = true;
@@ -93,7 +65,7 @@ public class ArrowListener implements Listener {
 
                 // If it was invalid, make it now valid
                 if (signUtils.isInvalidBullseyeSign(lines[0])) {
-                    lines[0] = ChatColor.DARK_BLUE.toString()
+                    lines[0] = ChatColor.DARK_BLUE
                             + lines[0].trim().replace(ChatColor.DARK_RED.toString(), "");
                     signUtils.updateSign(bullseyeSignBlock, lines);
                 }
@@ -118,7 +90,7 @@ public class ArrowListener implements Listener {
                     }
                 }
 
-                signUtils.signToRestone(plugin, bullseyeSignBlock);
+                signUtils.signToRedstone(bullseyeSignBlock);
             }
         } else {
             while (iterator.hasNext()) {
@@ -128,7 +100,7 @@ public class ArrowListener implements Listener {
 
                 // If it was valid, make it now invalid
                 if (signUtils.isValidBullseyeSign(lines[0])) {
-                    lines[0] = ChatColor.DARK_RED.toString()
+                    lines[0] = ChatColor.DARK_RED
                             + lines[0].trim().replace(ChatColor.DARK_BLUE.toString(), "");
                     signUtils.updateSign(bullseyeSignBlock, lines);
                 }
