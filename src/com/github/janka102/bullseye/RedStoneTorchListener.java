@@ -51,7 +51,7 @@ public class RedStoneTorchListener implements Listener {
         if (block.hasMetadata("BullseyeDoNotDestroy")) {
             plugin.log.info(event.getBlock().getType() + " tried to flow to " + block);
             // event.setCancelled(true);
-            changeToSign(block);
+            changeToAir(block);
             cancelTask(block);
         }
     }
@@ -63,17 +63,16 @@ public class RedStoneTorchListener implements Listener {
         for (Block block : blockList) {
             if (block.hasMetadata("BullseyeDoNotDestroy")) {
                 plugin.log.info(event.getEntityType() + " exploded " + block);
-                // If it drops, drop a sign instead of a redstone torch
-                changeToSign(block);
+                // If it drops, drop nothing instead
+                changeToAir(block);
                 cancelTask(block);
             }
         }
     }
 
-    private void changeToSign(final Block block) {
+    private void changeToAir(final Block block) {
         BlockState blockState = block.getState();
-        BlockData blockData = blockState.getBlockData();
-        blockState.setType(Material.SIGN);
+        blockState.setType(Material.AIR);
         blockState.update(true);
     }
 
