@@ -3,6 +3,7 @@ package com.github.janka102.bullseye;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.material.Attachable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
@@ -31,7 +32,7 @@ public class SignListener implements Listener {
             // get the attached block
             Block eventSign = event.getBlock();
             BlockState signState = eventSign.getState();
-            org.bukkit.material.Sign sign = (org.bukkit.material.Sign) signState.getData();
+            Attachable sign = (Attachable) signState.getData();
             Block attachedBlock = eventSign.getRelative(sign.getAttachedFace());
 
             if (signUtils.isValidBlock(attachedBlock)) {
