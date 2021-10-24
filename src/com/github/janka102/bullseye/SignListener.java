@@ -1,49 +1,27 @@
 package com.github.janka102.bullseye;
 
 import org.bukkit.ChatColor;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.material.Attachable;
+import org.bukkit.block.Sign;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.SignChangeEvent;
 
 public class SignListener implements Listener {
-    public final SignUtils signUtils;
-    public final Bullseye plugin;
+    private final Bullseye plugin;
+    private final SignUtils signUtils;
 
-    public SignListener(Bullseye bullseye) {
+    public SignListener(final Bullseye bullseye) {
         plugin = bullseye;
         signUtils = new SignUtils(bullseye);
     }
 
     // Called when a sign is created, and after the text is entered
     @EventHandler
-    public void onSignChange(SignChangeEvent event) {
-        String firstLine = event.getLine(0);
+    public void onSignChange(final SignChangeEvent event) {
+        final Sign sign = (Sign) event.getBlock().getState();
 
-        if (firstLine == null) {
-            return;
-        }
-
-        firstLine = firstLine.trim();
-
-        if (signUtils.isBullseyeSign(firstLine, false)) {
-            // get the attached block
-            Block eventSign = event.getBlock();
-            BlockState signState = eventSign.getState();
-            Attachable sign = (Attachable) signState.getData();
-            Block attachedBlock = eventSign.getRelative(sign.getAttachedFace());
-
-            if (signUtils.isValidBlock(attachedBlock)) {
-                event.setLine(0, ChatColor.DARK_BLUE + firstLine);
-                signState.update(true);
-
-                event.getPlayer().sendMessage(ChatColor.GREEN + "New Bullseye sign created!");
-            } else {
-                event.setLine(0, ChatColor.DARK_RED + firstLine);
-                signState.update(true);
-            }
+        if (signUtils.updateBullseyeSign(sign, event.getLines())) {
+            event.getPlayer().sendMessage(ChatColor.GREEN + "New Bullseye sign created!");
         }
     }
 }

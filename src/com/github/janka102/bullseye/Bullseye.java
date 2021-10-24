@@ -12,8 +12,8 @@ public class Bullseye extends JavaPlugin {
     FileConfiguration config;
     Boolean allowDispensers;
     Boolean allowSkeletons;
-    static Boolean isDenyList;
-    static List<String> blockList;
+    Boolean isDenyList;
+    List<String> blockList;
 
     public Logger log;
 
@@ -24,7 +24,7 @@ public class Bullseye extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        PluginManager pluginManager = getServer().getPluginManager();
+        final PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(new ArrowListener(this), this);
         pluginManager.registerEvents(new RedStoneTorchListener(this), this);
         pluginManager.registerEvents(new SignListener(this), this);
@@ -36,16 +36,16 @@ public class Bullseye extends JavaPlugin {
         allowDispensers = config.getBoolean("allowDispensers");
         allowSkeletons = config.getBoolean("allowSkeletons");
 
-        String blockListType = config.getString("blockList.type");
+        final String blockListType = config.getString("blockList.type");
         if (blockListType != null) {
             isDenyList = blockListType.equalsIgnoreCase("deny");
         } else {
             // maintain backward compatibility with versions < v0.9.0
             isDenyList = config.getBoolean("blockList.blacklist");
         }
-        blockList =  config.getStringList("blockList.blocks");
+        blockList = config.getStringList("blockList.blocks");
 
-        ListIterator<String> iterator = blockList.listIterator();
+        final ListIterator<String> iterator = blockList.listIterator();
         while (iterator.hasNext()) {
             iterator.set(iterator.next().toUpperCase());
         }
