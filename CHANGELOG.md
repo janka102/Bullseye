@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 0.9.1
+
+- Fix issue where players could turn any amount of redstone torches into signs
+
 ## Version 0.9.0
 
 - Support for 1.13 - 1.17
