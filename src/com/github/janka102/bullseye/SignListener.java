@@ -15,7 +15,12 @@ public class SignListener implements Listener {
         signUtils = new SignUtils(bullseye);
     }
 
-    // Called when a sign is created, and after the text is entered
+    /**
+     * Called when a sign is created, and after the text is entered.
+     * Update the sign text color and notify the player if successfully created a Bullseye sign.
+     *
+     * @param event The sign event
+     */
     @EventHandler
     public void onSignChange(final SignChangeEvent event) {
         final Sign sign = (Sign) event.getBlock().getState();

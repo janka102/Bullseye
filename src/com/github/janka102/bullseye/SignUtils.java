@@ -8,7 +8,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
-import org.bukkit.block.data.type.WallSign;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.util.ArrayList;
@@ -17,9 +16,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class SignUtils {
+    public static final String BULLSEYE_SIGN_MATERIAL = "BullseyeSignMaterial";
+    public static final String BULLSEYE_TASK_ID = "BullseyeTaskId";
+
     private static final Pattern BULLSEYE_TAG = Pattern.compile("^\\[(bullseye|bull|be)]$", Pattern.CASE_INSENSITIVE);
-    private static final String BULLSEYE_DO_NOT_DESTROY = "BullseyeDoNotDestroy";
-    private static final String BULLSEYE_TASK_ID = "BullseyeTaskId";
 
     private final Bullseye plugin;
 
@@ -100,25 +100,23 @@ public class SignUtils {
         return BULLSEYE_TAG.matcher(ChatColor.stripColor(line.trim())).matches();
     }
 
-    public BlockFace getFacing(final Sign sign) {
-        final BlockData signData = sign.getBlockData();
-
-        if (signData instanceof WallSign) {
+    public BlockFace getFacing(final BlockData blockData) {
+        if (blockData instanceof Directional) {
             // wall sign
-            return ((WallSign) signData).getFacing();
-        } else if (signData instanceof org.bukkit.block.data.type.Sign) {
+            return ((Directional) blockData).getFacing();
+        } else if (blockData instanceof org.bukkit.block.data.type.Sign) {
             // sign post
             return BlockFace.UP;
         } else {
-            plugin.log.warning("Unknown sign type! " + signData);
+            plugin.log.warning("Unknown sign type! " + blockData);
             return null;
         }
     }
 
-    public Block getAttachedBlock(final Sign sign) {
-        final BlockFace facing = getFacing(sign);
+    public Block getAttachedBlock(final BlockState blockState) {
+        final BlockFace facing = getFacing(blockState.getBlockData());
 
-        return sign.getBlock().getRelative(facing.getOppositeFace());
+        return blockState.getBlock().getRelative(facing.getOppositeFace());
     }
 
     // Get Bullseye signs attached to a block
@@ -167,9 +165,9 @@ public class SignUtils {
         final String[] lines = sign.getLines();
 
         final Material signMaterial = sign.getType();
-        final BlockFace signFace = getFacing(sign);
+        final BlockFace signFace = getFacing(signData);
 
-        sign.setMetadata(BULLSEYE_DO_NOT_DESTROY, new FixedMetadataValue(plugin, true));
+        sign.setMetadata(BULLSEYE_SIGN_MATERIAL, new FixedMetadataValue(plugin, signMaterial.toString()));
 
 //         plugin.log.info(signData.toString());
         if (signFace == BlockFace.UP) {
@@ -203,16 +201,16 @@ public class SignUtils {
 //                     plugin.log.info(signBlockState.getData().toString());
 
                     // Restore the original text of the Bullseye sign back
-                    setLines(sign, lines);
+                    updateBullseyeSign(sign, lines);
                 }
             } catch (RuntimeException e) {
                 plugin.log.severe("Error in signToRedstone: " + e.getClass() + ": " + e.getMessage());
             }
 
-            sign.removeMetadata(BULLSEYE_DO_NOT_DESTROY, plugin);
+            sign.removeMetadata(BULLSEYE_SIGN_MATERIAL, plugin);
             sign.removeMetadata(BULLSEYE_TASK_ID, plugin);
         }, delay);
 
-        signBlock.setMetadata(BULLSEYE_TASK_ID, new FixedMetadataValue(plugin, taskId));
+        sign.setMetadata(BULLSEYE_TASK_ID, new FixedMetadataValue(plugin, taskId));
     }
 }

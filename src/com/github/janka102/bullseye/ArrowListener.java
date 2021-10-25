@@ -25,6 +25,11 @@ public class ArrowListener implements Listener {
         signUtils = new SignUtils(bullseye);
     }
 
+    /**
+     * Check when an arrow hits a block if it should trigger a Bullseye sign.
+     *
+     * @param event The projectile event to check
+     */
     @EventHandler
     public void onArrowHit(final ProjectileHitEvent event) {
         final Projectile arrow = event.getEntity();
@@ -65,6 +70,7 @@ public class ArrowListener implements Listener {
                     }
                 }
 
+                // TODO: Have dynamic delay time based on 2nd row of the sign
                 signUtils.signToRedstone(bullseyeSign, 25);
             }
         } else {
