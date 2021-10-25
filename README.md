@@ -1,6 +1,7 @@
 # Bullseye
 
-<span style="float:left;width:128px;margin-right:1em">![Bullseye logo](images/logo.png)</span>
+<img src="images/logo.png" alt="Bullseye logo" width="128px" align="left"/>
+
 Bullseye adds the ability for blocks to detect arrows with a sign. Allows you to create a Bullseye block (arrow detector block) by placing a sign, with special text, on any block. Whenever that block is hit with arrows, the sign will change to a redstone torch briefly.
 
 This is different from a [Target block](https://minecraft.fandom.com/wiki/Target) because you can choose exactly which side the redstone torch will appear and you can make it _completely hidden_ by having the torch appear on the back of the block.
