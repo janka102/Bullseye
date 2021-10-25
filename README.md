@@ -27,7 +27,7 @@ This is different from a [Target block](https://minecraft.fandom.com/wiki/Target
 
 1. Make a sign and put the text `[bullseys]`, `[bull]`, or `[be]` on the first line
 2. Optionally any text on the next 3 lines will be sent to you when you activate the sign
-3. Now whenever you hit the block the sign is on, the sign will briefly turn into a redstone torch
+3. Now whenever you shoot the block the sign is on with an arrow, the sign will briefly turn into a redstone torch
    - Note: you don't have to hit the sign, just the block the sign is attached to
    - You can have multiple signs per block
 
