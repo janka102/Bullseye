@@ -43,6 +43,12 @@ public class RedStoneTorchListener implements Listener {
         }
 
         final Block block = item.getWorld().getBlockAt(item.getLocation());
+
+        if (!block.isEmpty()) {
+            // This means the torch was not broken, but instead someone threw the item
+            return;
+        }
+
         final List<MetadataValue> metadata = block.getMetadata(SignUtils.BULLSEYE_SIGN_MATERIAL);
 //        plugin.log.info("DroppedItem: " + item.getItemStack());
 //        plugin.log.info("Item Location: " + item.getLocation());
