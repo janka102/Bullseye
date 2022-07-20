@@ -9,11 +9,14 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Bullseye extends JavaPlugin {
-    FileConfiguration config;
-    Boolean allowDispensers;
-    Boolean allowSkeletons;
-    Boolean isDenyList;
-    List<String> blockList;
+    private static int BSTATS_PLUGIN_ID = 15841;
+    private FileConfiguration config;
+
+    public boolean allowDispensers;
+    public boolean allowSkeletons;
+    public int maxActiveTicks;
+    public boolean isDenyList;
+    public List<String> blockList;
 
     public Logger log;
 
@@ -49,6 +52,9 @@ public class Bullseye extends JavaPlugin {
         while (iterator.hasNext()) {
             iterator.set(iterator.next().toUpperCase());
         }
+
+        // add bStats metrics
+        Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
 
         log.info("Bullseye enabled!");
     }
