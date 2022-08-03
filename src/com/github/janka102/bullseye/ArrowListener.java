@@ -41,14 +41,19 @@ public class ArrowListener implements Listener {
         }
 
         final ProjectileSource shooter = arrow.getShooter();
-        Player player = null;
+        final Player player;
+
+        // plugin.log.info("Shooter: " + shooter);
 
         if (shooter instanceof Player) {
             player = (Player) shooter;
         } else if (
-            !(shooter instanceof Skeleton && plugin.allowSkeletons) &&
-            !(shooter instanceof BlockProjectileSource && plugin.allowDispensers)
+                ((shooter instanceof Skeleton) && plugin.allowSkeletons) ||
+                ((shooter instanceof BlockProjectileSource) && plugin.allowDispensers)
         ) {
+            player = null;
+        } else {
+            // Unsupported source, or blocked by the config
             return;
         }
 
