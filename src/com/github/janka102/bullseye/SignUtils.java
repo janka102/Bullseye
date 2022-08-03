@@ -9,17 +9,23 @@ import org.bukkit.block.Sign;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class SignUtils {
     public static final String BULLSEYE_SIGN_MATERIAL = "BullseyeSignMaterial";
     public static final String BULLSEYE_TASK_ID = "BullseyeTaskId";
+    private static final int DEFAULT_TICK_ACTIVATION = 30;
 
-    private static final Pattern BULLSEYE_TAG = Pattern.compile("^\\[(bullseye|bull|be)]$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern BULLSEYE_TAG = Pattern.compile("^\\[(bullseye|bull|be)( (?<ticks>\\d+))?]$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern MATERIAL_WALL_REPLACE = Pattern.compile("WALL_");
 
     private final Bullseye plugin;
 
@@ -100,15 +106,19 @@ public class SignUtils {
         return BULLSEYE_TAG.matcher(ChatColor.stripColor(line.trim())).matches();
     }
 
+    public boolean isBullseyeSign(final Sign sign) {
+        return isBullseyeSign(sign.getLine(0));
+    }
+
     public BlockFace getFacing(final BlockData blockData) {
         if (blockData instanceof Directional) {
-            // wall sign
+            // wall
             return ((Directional) blockData).getFacing();
-        } else if (blockData instanceof org.bukkit.block.data.type.Sign) {
-            // sign post
+        } else if ((blockData instanceof org.bukkit.block.data.type.Sign) || blockData.getMaterial().equals(Material.REDSTONE_TORCH)) {
+            // upright
             return BlockFace.UP;
         } else {
-            plugin.log.warning("Unknown sign type! " + blockData);
+            plugin.log.warning("Unknown facing type! " + blockData);
             return null;
         }
     }
@@ -134,7 +144,7 @@ public class SignUtils {
 
                 // Checks to see if the sign next to the block hit is a Bullseye sign
                 // And if it's actually attached to the original block
-                if (isBullseyeSign(sign.getLine(0))) {
+                if (isBullseyeSign(sign)) {
                     final Block attachedBlock = getAttachedBlock(sign);
 
                     if (attachedBlock.equals(block)) {
@@ -158,10 +168,45 @@ public class SignUtils {
         }
     }
 
+    public int getActivateTicks(final Sign sign) {
+        final Matcher matcher = BULLSEYE_TAG.matcher(ChatColor.stripColor(sign.getLine(0)));
+        if (!matcher.matches()) {
+            return -1;
+        }
+
+        // Default value if custom value not found
+        final String ticks = matcher.group("ticks");
+        if (ticks == null || ticks.isEmpty()) {
+            return DEFAULT_TICK_ACTIVATION;
+        }
+
+        try {
+            final int signTicks = Integer.parseUnsignedInt(ticks);
+            return Math.min(signTicks, plugin.maxActiveTicks);
+        } catch (final NumberFormatException e) {
+            // Shouldn't ever happen since the regex checks for digits, but just in case
+            return -1;
+        }
+    }
+
+    public Material getMaterialFromMetadata(MetadataValue metadataValue) {
+        // Cannot drop WALL_SIGNs directly, so replace it with normal sign types
+        final String materialName = MATERIAL_WALL_REPLACE.matcher(metadataValue.asString()).replaceFirst("");
+        final Material signMaterial = Material.getMaterial(materialName);
+
+        return signMaterial;
+    }
+
     // Changes a Bullseye sign to a redstone torch for a specified time
-    public void signToRedstone(final Sign sign, final long delay) {
-        Block signBlock = sign.getBlock();
-        BlockData signData = sign.getBlockData();
+    public void signToRedstone(final Sign sign) {
+        final int activateTicks = getActivateTicks(sign);
+
+        if (activateTicks < 0) {
+            plugin.log.fine("Sign has ticks: " + activateTicks);
+            return;
+        }
+
+        final BlockData signData = sign.getBlockData();
         final String[] lines = sign.getLines();
 
         final Material signMaterial = sign.getType();
@@ -187,29 +232,46 @@ public class SignUtils {
         // Run this after a delay to restore the torch back to a sign
         // Resets the block to a sign
         int taskId = plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-            try {
-                final Material currentMaterial = sign.getBlock().getBlockData().getMaterial();
-//                plugin.log.info("Current Material: " + currentMaterial);
+            final Optional<MetadataValue> metadata = sign.getMetadata(SignUtils.BULLSEYE_SIGN_MATERIAL).stream()
+                    .filter(metadataValue -> Objects.equals(metadataValue.getOwningPlugin(), plugin))
+                    .findFirst();
 
-                if (currentMaterial == Material.REDSTONE_TORCH || currentMaterial == Material.REDSTONE_WALL_TORCH) {
-                    sign.setType(signMaterial);
-                    sign.setBlockData(signData);
+            // make sure it still has metadata
+            metadata.ifPresent(metadataValue -> {
+                try {
+                    final Material originalSignMaterial = getMaterialFromMetadata(metadataValue);
 
-                    if (!sign.update(true)) {
-                        plugin.log.warning("Redstone torch was not updated back to a sign! " + sign);
+                    final BlockData currentBlockData = sign.getBlock().getBlockData();
+                    final Material currentMaterial = currentBlockData.getMaterial();
+                    // plugin.log.info("Current Material: " + currentMaterial);
+
+                    // make sure metadata is valid and it's a redstone torch
+                    if (originalSignMaterial != null
+                            && (currentMaterial == Material.REDSTONE_TORCH || currentMaterial == Material.REDSTONE_WALL_TORCH)) {
+                        final BlockFace currentFacing = getFacing(currentBlockData);
+
+                        // make sure the redstone torch is facing the same direction
+                        if (currentFacing.equals(signFace)) {
+                            sign.setType(originalSignMaterial);
+                            sign.setBlockData(signData);
+
+                            if (!sign.update(true)) {
+                                plugin.log.warning("Redstone torch was not updated back to a sign! " + sign);
+                            }
+                            // plugin.log.info(signBlockState.getData().toString());
+
+                            // Restore the original text of the Bullseye sign back
+                            updateBullseyeSign(sign, lines);
+                        }
                     }
-//                     plugin.log.info(signBlockState.getData().toString());
 
-                    // Restore the original text of the Bullseye sign back
-                    updateBullseyeSign(sign, lines);
+                    sign.removeMetadata(BULLSEYE_SIGN_MATERIAL, plugin);
+                    sign.removeMetadata(BULLSEYE_TASK_ID, plugin);
+                } catch (RuntimeException e) {
+                    plugin.log.severe("Error in signToRedstone: " + e.getClass() + ": " + e.getMessage());
                 }
-            } catch (RuntimeException e) {
-                plugin.log.severe("Error in signToRedstone: " + e.getClass() + ": " + e.getMessage());
-            }
-
-            sign.removeMetadata(BULLSEYE_SIGN_MATERIAL, plugin);
-            sign.removeMetadata(BULLSEYE_TASK_ID, plugin);
-        }, delay);
+            });
+        }, activateTicks);
 
         sign.setMetadata(BULLSEYE_TASK_ID, new FixedMetadataValue(plugin, taskId));
     }

@@ -13,6 +13,12 @@
 # If true, any message on lines 2-4 of the sign is not displayed.
 #
 # =============
+# maxActiveTicks: 100
+#
+# Maximum time a sign will be activated for, in ticks.
+# If a signs' tag ends with a number, it will activate for that long, up to this value.
+#
+# =============
 # blockList:
 #   type: deny
 #   blocks:
@@ -27,6 +33,7 @@
 
 allowDispensers: true
 allowSkeletons: false
+maxActiveTicks: 100
 blockList:
   type: deny
   blocks:

@@ -34,6 +34,7 @@ public class ArrowListener implements Listener {
     public void onArrowHit(final ProjectileHitEvent event) {
         final Projectile arrow = event.getEntity();
         final Block hitBlock = event.getHitBlock();
+        // plugin.log.info("Hit block: " + hitBlock);
 
         // Only want arrows that hit blocks
         if (!(arrow instanceof Arrow) || hitBlock == null) {
@@ -59,7 +60,7 @@ public class ArrowListener implements Listener {
 
         // Get all Bullseye signs attached to block and change them to rs torch
         final List<Sign> hitBlockSigns = signUtils.findAllBullseyeSigns(hitBlock);
-//         plugin.log.info("Found " + hitBlockSigns.size());
+        // plugin.log.info("Found " + hitBlockSigns.size());
 
         if (signUtils.isValidBlock(hitBlock)) {
             for (final Sign bullseyeSign : hitBlockSigns) {
@@ -68,15 +69,17 @@ public class ArrowListener implements Listener {
 
                 // Displays any message on the sign
                 if (player != null) {
-                    String message = Arrays.stream(bullseyeSign.getLines()).skip(1).collect(Collectors.joining(""));
+                    final String message = Arrays.stream(bullseyeSign.getLines())
+                            .skip(1)
+                            .collect(Collectors.joining(""))
+                            .trim();
 
-                    if (message.trim().length() > 0) {
+                    if (message.length() > 0) {
                         player.sendMessage("Bullseye! " + message);
                     }
                 }
 
-                // TODO: Have dynamic delay time based on 2nd row of the sign
-                signUtils.signToRedstone(bullseyeSign, 25);
+                signUtils.signToRedstone(bullseyeSign);
             }
         } else {
             for (final Sign bullseyeSign : hitBlockSigns) {

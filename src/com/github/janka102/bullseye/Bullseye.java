@@ -38,6 +38,7 @@ public class Bullseye extends JavaPlugin {
 
         allowDispensers = config.getBoolean("allowDispensers");
         allowSkeletons = config.getBoolean("allowSkeletons");
+        maxActiveTicks = config.getInt("maxActiveTicks");
 
         final String blockListType = config.getString("blockList.type");
         if (blockListType != null) {
@@ -52,6 +53,12 @@ public class Bullseye extends JavaPlugin {
         while (iterator.hasNext()) {
             iterator.set(iterator.next().toUpperCase());
         }
+
+        log.fine("Allow Dispensers: " + allowDispensers);
+        log.fine("Allow Skeletons: " + allowSkeletons);
+        log.fine("Max Active Ticks: " + maxActiveTicks);
+        final int numBlocks = blockList.size();
+        log.fine(String.format("Block List: type=%s, %d block%s", isDenyList ? "deny" : "allow", numBlocks, numBlocks == 1 ? "" : "s"));
 
         // add bStats metrics
         Metrics metrics = new Metrics(this, BSTATS_PLUGIN_ID);
