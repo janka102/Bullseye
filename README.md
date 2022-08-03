@@ -37,7 +37,7 @@ This is different from a [Target block](https://minecraft.fandom.com/wiki/Target
    - Note: you don't have to hit the sign, just the block the sign is attached to
    - You can have multiple signs per block
 
-![tutorial](images/tutorial.gif)
+![demo](images/demo.gif)
 
 These are examples of **valid** signs:
 
