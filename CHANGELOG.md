@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.10.0
+
+- Add custom activation time by adding ticks to the tag line
+  - `[bullseye 40]` will have the sign activate for 40 ticks (2 seconds)
+- Fixed water breaking an activated Bullseye sign (again...)
+- Fixed Skeletons and dispensers able to trigger Bullseye blocks
+- Verified support for 1.13-1.19
+
+---
+
 ## Version 0.9.1
 
 - Fix issue where players could turn any amount of redstone torches into signs
@@ -10,8 +20,6 @@
 - Completely fix issue with breaking activated redstone torches and having them drop
     - Now it drops the original sign
 - Change blockList to allow/deny list
-
----
 
 ## Version 0.8.1
 
