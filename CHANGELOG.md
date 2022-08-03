@@ -10,6 +10,9 @@
 
 ---
 
+<details>
+<summary>Older versions</summary>
+
 ## Version 0.9.1
 
 - Fix issue where players could turn any amount of redstone torches into signs
@@ -88,3 +91,4 @@
 - If changing the whitelist/blacklist blocks, the first line on an already made Bullseye sign won't change color until
   it is shot.
 
+</details>
