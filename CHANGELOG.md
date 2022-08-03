@@ -6,7 +6,7 @@
   - `[bullseye 40]` will have the sign activate for 40 ticks (2 seconds)
 - Fixed water breaking an activated Bullseye sign (again...)
 - Fixed Skeletons and dispensers able to trigger Bullseye blocks
-- Verified support for 1.13-1.19
+- Verified support for 1.13-1.19.1
 
 ---
 

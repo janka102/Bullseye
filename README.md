@@ -47,6 +47,18 @@ Here is an example of an **invalid** sign:
 
 ![invalid sign](images/invalid-signs.png)
 
+## Known Issues
+
+### Minecraft 1.14 only
+
+With Spigot 1.14, the server shows an error in the logs similar to the following:
+
+```
+[Server thread/ERROR]: Block at 84, 3, 182 is Block{minecraft:redstone_wall_torch} but has net.minecraft.server.v1_14_R1.TileEntitySign@37dedbb0. Bukkit will attempt to fix this, but there may be additional damage that we cannot recover.
+```
+
+However, Bullseye works as expected so it can be ignored. This does not show on any other version tested from 1.13-1.19.1.
+
 ## To-Do
 
 - Allow other projectiles besides arrows
