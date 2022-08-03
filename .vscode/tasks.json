@@ -16,6 +16,11 @@
       "label": "deploy",
       "type": "shell",
       "command": "ant deploy"
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "ant clean"
     }
   ]
 }

@@ -15,7 +15,7 @@
             </classpath>
         </javac>
     </target>
-    
+
     <target name="build" depends="compile">
         <mkdir dir="${build}"/>
         <jar jarfile="${build}/${pluginname}.jar">
@@ -24,12 +24,12 @@
             <fileset file="src/config.yml"/>
         </jar>
     </target>
-    
+
     <target name="deploy" depends="build">
         <mkdir dir="${plugins}"/>
         <copy file="${build}/${pluginname}.jar" todir="${plugins}"/>
     </target>
-    
+
     <target name="clean">
         <delete dir="${bin}"/>
         <delete dir="${build}"/>
